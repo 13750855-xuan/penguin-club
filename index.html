@@ -6,21 +6,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="企鵝的麻吉" />
-<meta name="theme-color" content="#141233" />
+<meta name="theme-color" content="#110f30" />
 <title>企鵝的麻吉 · 唯美海洋語音交友與樂園</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
   input, textarea, select { user-select: text; }
 
   :root {
-    --bg-outer: radial-gradient(circle at 18% 12%, #2e2a72 0%, #141233 58%, #070614 100%);
+    --bg-outer: #110f30;
     --bg-shell: linear-gradient(180deg, #1b1846 0%, #110f30 45%, #0b0a22 100%);
-    --border-shell: rgba(139, 92, 246, 0.35);
-    --glass-bg: rgba(28, 24, 68, 0.84);
+    --border-shell: transparent;
+    --glass-bg: rgba(28, 24, 68, 0.86);
     --glass-elevated: rgba(40, 34, 92, 0.96);
     --glass-border: rgba(255, 255, 255, 0.12);
     --glass-border-strong: rgba(167, 139, 250, 0.36);
-    --card-sub: rgba(15, 13, 40, 0.72);
+    --card-sub: rgba(15, 13, 40, 0.74);
     --text-main: #f8fafc;
     --text-sub: #cbd5e1;
     --text-muted: #94a3b8;
@@ -30,19 +30,19 @@
     --gold-hi: #fbbf24;
     --gold-grad: linear-gradient(135deg, #fde68a, #f59e0b);
     --gold-soft: rgba(251, 191, 36, 0.16);
-    --nav-bg: rgba(14, 12, 36, 0.96);
-    --chat-bg: rgba(15, 13, 40, 0.78);
+    --nav-bg: #0e0c24;
+    --chat-bg: rgba(15, 13, 40, 0.8);
   }
 
   body.theme-blackgold {
-    --bg-outer: radial-gradient(circle at 18% 12%, #292214 0%, #110e09 58%, #050403 100%);
+    --bg-outer: #120f0a;
     --bg-shell: linear-gradient(180deg, #1c1811 0%, #120f0a 45%, #090805 100%);
-    --border-shell: rgba(245, 158, 11, 0.35);
-    --glass-bg: rgba(32, 26, 17, 0.86);
+    --border-shell: transparent;
+    --glass-bg: rgba(32, 26, 17, 0.88);
     --glass-elevated: rgba(46, 37, 23, 0.96);
     --glass-border: rgba(251, 191, 36, 0.16);
     --glass-border-strong: rgba(245, 158, 11, 0.42);
-    --card-sub: rgba(18, 14, 9, 0.78);
+    --card-sub: rgba(18, 14, 9, 0.8);
     --text-main: #fef3c7;
     --text-sub: #fde68a;
     --text-muted: #a8a29e;
@@ -52,21 +52,20 @@
     --gold-hi: #fde047;
     --gold-grad: linear-gradient(135deg, #fef08a, #eab308);
     --gold-soft: rgba(245, 158, 11, 0.18);
-    --nav-bg: rgba(15, 12, 8, 0.96);
-    --chat-bg: rgba(18, 14, 9, 0.82);
+    --nav-bg: #0f0c08;
+    --chat-bg: rgba(18, 14, 9, 0.84);
   }
 
   html, body {
-    margin: 0; padding: 0; width: 100%; height: 100%;
+    margin: 0; padding: 0; width: 100%; height: 100%; min-height: 100dvh;
     background: var(--bg-outer); color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif;
-    overflow: hidden;
+    overflow: hidden; border: none; outline: none;
   }
 
-  /* 2. 遊戲畫面滿版 */
   .app-shell {
-    position: relative; width: 100vw; max-width: 100%; height: 100dvh; margin: 0 auto;
-    background: var(--bg-shell);
+    position: fixed; inset: 0; width: 100vw; max-width: 100%; height: 100dvh; margin: 0;
+    background: var(--bg-shell); border: none; outline: none;
     display: flex; flex-direction: column; overflow: hidden;
   }
 
@@ -93,7 +92,7 @@
   .top-bar {
     flex-shrink: 0; padding: calc(env(safe-area-inset-top, 10px) + 8px) 14px 10px;
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    background: rgba(10, 9, 28, 0.62); border-bottom: 1px solid var(--glass-border);
+    background: rgba(10, 9, 28, 0.68); border-bottom: 1px solid var(--glass-border);
     backdrop-filter: blur(12px); z-index: 20;
   }
   .brand-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
@@ -309,26 +308,35 @@
   }
   .section-title { font-size: 13px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 
-  /* 個人主頁封面照與親密關係牆（10. 五種底色） */
   .hp-cover {
     width: 100%; height: 116px; border-radius: 14px; overflow: hidden;
     background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(139,92,246,0.2));
     border: 1px solid var(--glass-border-strong); position: relative; margin-bottom: 10px;
     display: flex; align-items: center; justify-content: center;
   }
+  .hp-nobility-box {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card-sub); border: 1px solid var(--glass-border-strong);
+    border-radius: 12px; padding: 8px 10px; margin-bottom: 10px;
+  }
+  .hp-nobility-icon {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;
+    overflow: hidden; font-size: 22px;
+  }
+
   .rel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-top: 6px; }
   .rel-card {
     border-radius: 12px; padding: 8px 10px; color: #0f172a; font-weight: 800; font-size: 11px;
     display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.35);
   }
-  .rel-bg-lover { background: #fbcfe8; }     /* 戀人：粉色底 */
-  .rel-bg-bestie { background: #ddd6fe; }    /* 摯友：紫色底 */
-  .rel-bg-close { background: #fed7aa; }     /* 閨蜜：橘色底 */
-  .rel-bg-parent { background: #fef08a; }    /* 親子：黃色底 */
-  .rel-bg-mentor { background: #bbf7d0; }    /* 師徒：綠色底 */
+  .rel-bg-lover { background: #fbcfe8; }
+  .rel-bg-bestie { background: #ddd6fe; }
+  .rel-bg-close { background: #fed7aa; }
+  .rel-bg-parent { background: #fef08a; }
+  .rel-bg-mentor { background: #bbf7d0; }
   .rel-icon-box { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden; flex-shrink: 0; }
 
-  /* 3. 私人聊天室全螢幕畫面 */
   #fullscreen-pm-overlay {
     position: fixed; inset: 0; z-index: 110; display: none; flex-direction: column;
     background: var(--bg-shell);
@@ -348,9 +356,9 @@
   }
 
   .bottom-nav {
-    position: absolute; bottom: 0; left: 0; right: 0;
+    position: fixed; bottom: 0; left: 0; right: 0; width: 100%;
     padding: 6px 6px calc(env(safe-area-inset-bottom, 8px) + 6px);
-    background: var(--nav-bg); border-top: 1px solid var(--glass-border);
+    background: var(--nav-bg); border: none; border-top: 1px solid var(--glass-border);
     display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; z-index: 30;
   }
   .nav-btn {
@@ -403,7 +411,6 @@
 <div class="app-shell">
   <div id="toast" class="toast"></div>
 
-  <!-- 每次打開都顯示的歡迎來到企鵝畫面 -->
   <div id="splash-screen">
     <div class="splash-penguin">🐧</div>
     <div class="splash-title">歡迎來到企鵝</div>
@@ -411,7 +418,6 @@
     <button class="splash-enter-btn" onclick="enterGameFromSplash()">進入遊戲世界 →</button>
   </div>
 
-  <!-- 頂部欄 -->
   <header class="top-bar">
     <div class="brand-left">
       <div class="logo-badge">企鵝</div>
@@ -433,7 +439,6 @@
   </header>
 
   <main class="main-scroll">
-    <!-- 1. 大廳 -->
     <section id="panel-hall" class="tab-panel active">
       <div class="glass-card">
         <div class="profile-row">
@@ -457,7 +462,6 @@
         </div>
       </div>
 
-      <!-- 語音麥位、聊天室背景主題與完整聊天室 -->
       <div class="glass-card">
         <div class="room-header">
           <div class="room-name">🌊 <span id="current-room-title">星河海洋大廳</span></div>
@@ -477,7 +481,6 @@
         </div>
       </div>
 
-      <!-- 盲盒選單 -->
       <div class="glass-card" id="box-launcher-card">
         <div class="launcher-bar">
           <div>
@@ -500,7 +503,6 @@
         <div class="box-grid" id="blindbox-grid"></div>
       </div>
 
-      <!-- 企鵝的麻吉選單 -->
       <div class="glass-card" id="maji-launcher-card">
         <div class="launcher-bar">
           <div>
@@ -551,12 +553,10 @@
       </div>
     </section>
 
-    <!-- 個人主頁（封面照、等級/積分、已點亮禮物、親密關係牆） -->
     <section id="panel-homepage" class="tab-panel">
       <div class="glass-card" id="homepage-card-container"></div>
     </section>
 
-    <!-- 商城（9 & 11 & 13） -->
     <section id="panel-shop" class="tab-panel">
       <div class="glass-card">
         <div class="section-title">
@@ -568,7 +568,6 @@
       </div>
     </section>
 
-    <!-- 語音房（6 & 7：每人專屬語音房、密碼鎖房、非官方房可改名） -->
     <section id="panel-rooms" class="tab-panel">
       <div class="glass-card">
         <div class="section-title">
@@ -579,7 +578,6 @@
       </div>
     </section>
 
-    <!-- 好友與全螢幕私人聊天室 -->
     <section id="panel-friends" class="tab-panel">
       <div class="glass-card">
         <div class="section-title">
@@ -590,7 +588,6 @@
       </div>
     </section>
 
-    <!-- 禮物牆 -->
     <section id="panel-gifts" class="tab-panel">
       <div class="glass-card">
         <div class="section-title"><span>🎁 夢幻海洋禮物牆</span></div>
@@ -599,7 +596,6 @@
       </div>
     </section>
 
-    <!-- 爵位 -->
     <section id="panel-nobility" class="tab-panel">
       <div class="glass-card">
         <div class="section-title"><span>👑 六階榮耀盾牌爵位</span></div>
@@ -608,7 +604,6 @@
     </section>
   </main>
 
-  <!-- 3. 點開好友私人聊天室時的全螢幕畫面 -->
   <div id="fullscreen-pm-overlay">
     <div class="full-pm-head">
       <button class="pill-btn" onclick="closeFullscreenPm()">← 返回</button>
@@ -644,8 +639,8 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'penguin_club_v6_full_persist';
-const SYNC_CHANNEL = 'penguin_club_realtime_sync_v6';
+const STORAGE_KEY = 'penguin_club_v7_nobility_hp';
+const SYNC_CHANNEL = 'penguin_club_realtime_sync_v7';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(SYNC_CHANNEL) : null;
 
 const ANIMALS = [
@@ -723,7 +718,6 @@ const DEFAULT_BLINDBOXES = [
   }
 ];
 
-/* 10 & 12. 五種親密關係與預設圖示 */
 const RELATIONSHIP_TYPES = [
   { key: 'lover', label: '戀人', cssClass: 'rel-bg-lover', defaultIcon: '💍' },
   { key: 'bestie', label: '摯友', cssClass: 'rel-bg-bestie', defaultIcon: '💜' },
@@ -742,7 +736,7 @@ const DEFAULT_SHOP_ITEMS = [
 ];
 
 const CHAT_BG_THEMES = [
-  { id: 'deep-ocean', name: '深海星河', bg: 'rgba(15, 13, 40, 0.78)' },
+  { id: 'deep-ocean', name: '深海星河', bg: 'rgba(15, 13, 40, 0.8)' },
   { id: 'aurora-teal', name: '極光青藍', bg: 'linear-gradient(135deg, rgba(13, 148, 136, 0.35), rgba(30, 58, 138, 0.58))' },
   { id: 'velvet-rose', name: '暮色玫紫', bg: 'linear-gradient(135deg, rgba(157, 23, 77, 0.35), rgba(76, 29, 149, 0.58))' },
   { id: 'royal-gold', name: '黑金宮廷', bg: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45), rgba(24, 24, 27, 0.86))' }
@@ -1055,6 +1049,20 @@ function getNobilityObj(nobId) {
   return state.nobilityTiers.find(t => t.id === target) || null;
 }
 
+function renderMiniNobilityBadge(nob) {
+  if (!nob) return '<span style="font-size:20px;">👑</span>';
+  if (nob.img) {
+    return `<img src="${nob.img}" style="width:100%;height:100%;object-fit:cover;" alt="${nob.name}" />`;
+  }
+  return `
+    <svg viewBox="0 0 100 100" width="34" height="34">
+      <path d="M50 6 L86 20 V48 C86 71 69 87 50 95 C31 87 14 71 14 48 V20 Z"
+            fill="${nob.c1}" stroke="#fde68a" stroke-width="4" />
+      <polygon points="50,28 63,46 50,68 37,46" fill="${nob.gem}" stroke="#ffffff" stroke-width="2" />
+    </svg>
+  `;
+}
+
 function checkMax666AndNotify(kind, info) {
   if (!info.isMax) return;
   const label = kind === 'wealth' ? '財富等級' : '🌹魅力等級';
@@ -1147,7 +1155,6 @@ function renderProfile() {
   if (bShop) bShop.textContent = totalBagCount;
 }
 
-/* 4. 個人主頁：自行從相簿選取照片新增封面照；5. 點其他人主頁不顯示累積積分數字，顯示等級、ID、名字、頭像、封面照、已點亮禮物與親密關係牆 */
 function openPlayerHomepage(playerId) {
   syncCurrentUserDirectory();
   state.viewingPlayerId = playerId || state.user.id;
@@ -1212,6 +1219,14 @@ function openPlayerHomepage(playerId) {
         <div style="margin-top:4px;"><span class="mini-chip gold">${titleBadge}</span></div>
       </div>
     </div>
+    <div class="hp-nobility-box" onclick="switchTab('nobility')" style="cursor:pointer;">
+      <div class="hp-nobility-icon">${renderMiniNobilityBadge(nob)}</div>
+      <div style="flex:1;">
+        <div style="font-size:11px;color:var(--text-muted);">爵位圖示</div>
+        <div style="font-size:13px;font-weight:900;color:var(--gold-hi);">${nob ? nob.name + '爵位' : '尚未開通爵位'}</div>
+      </div>
+      <span class="mini-chip">查看爵位</span>
+    </div>
     <div class="list-item" style="margin-bottom:6px;" onclick="${isSelf ? `openLevelProgressModal('wealth')` : ''}">
       <span>💎 財富等級</span>
       <b style="color:${getLevelColor(wInfo.level)};">${wealthRightText}</b>
@@ -1241,7 +1256,6 @@ function handleCoverUpload(e) {
   reader.readAsDataURL(file);
 }
 
-/* 麥位與聊天 */
 function syncMyMicsWithProfile() {
   state.mics.forEach(m => {
     if (m.isSelf || m.id === state.user.id) {
@@ -1316,7 +1330,6 @@ function triggerWelcomeBanner() {
   addChat('進房', state.user.nick, `進入「${state.currentRoom}」✨`);
 }
 
-/* 11. 官方系統聊天室通知與確認綁定親密關係 */
 function addChat(tag, nick, text, extra = {}) {
   state.chats.push({
     id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -1392,7 +1405,6 @@ function sendChat() {
   inp.value = '';
 }
 
-/* 盲盒選單與企鵝的麻吉選單 */
 function toggleBoxMenu(open) {
   state.boxMenuOpen = !!open;
   document.getElementById('box-launcher-card').style.display = state.boxMenuOpen ? 'none' : 'block';
@@ -1558,7 +1570,6 @@ setInterval(() => {
   saveState(false);
 }, 1000);
 
-/* 盲盒與背包 */
 function renderBlindBoxes() {
   const grid = document.getElementById('blindbox-grid');
   grid.innerHTML = state.blindboxes.map((box, idx) => `
@@ -1738,7 +1749,6 @@ function giftFromBackpack(idx) {
   renderProfile(); saveState(); openBackpackModal();
 }
 
-/* 9 & 13. 商城（管理員上架、自訂價格與禮物名稱／圖示；購買直接放背包） */
 function renderShop() {
   const grid = document.getElementById('shop-grid');
   grid.innerHTML = state.shopItems.map((it, idx) => {
@@ -1769,7 +1779,6 @@ function buyShopItem(idx) {
   showToast(`已購買【${it.name}】並放入背包！`);
 }
 
-/* 禮物牆 */
 function renderGifts() {
   const grid = document.getElementById('gift-grid');
   grid.innerHTML = state.gifts.map(g => {
@@ -1802,7 +1811,6 @@ function sendWallGift(giftId) {
   showToast(`已送出 ${g.name} 並點亮主頁圖標！`);
 }
 
-/* 爵位 */
 function renderShieldSvg(tier) {
   if (tier.img) {
     return `<img src="${tier.img}" class="shield-img" alt="${tier.name}" />`;
@@ -1854,7 +1862,6 @@ function buyNobility(id) {
   showToast(`👑 恭喜晉升【${tier.name}】！`);
 }
 
-/* 6 & 7. 語音房：每人專屬語音房、密碼鎖房、非官方房可改名 */
 function renderRooms() {
   ensureSelfVoiceRoom();
   const list = document.getElementById('room-list');
@@ -1970,7 +1977,6 @@ function confirmCreateRoom() {
   renderRooms(); closeModal(); enterRoomByName(name);
 }
 
-/* 3. 好友與全螢幕私人聊天室 */
 function renderFriends() {
   const list = document.getElementById('friend-list');
   list.innerHTML = state.friends.map((f, idx) => `
@@ -2047,7 +2053,6 @@ function confirmAddFriend() {
   showToast(`已新增好友 ${nick} (ID:${id})`);
 }
 
-/* 切換帳號（設定 ID 與密碼）與個人資料編輯 */
 function openSwitchAccountModal() {
   const savedList = Object.values(state.accounts || {}).map(acc => `
     <div class="list-item" style="margin-bottom:6px;">
@@ -2170,7 +2175,6 @@ function openHistoryModal() {
   openModal('📜 《企鵝的麻吉》開獎記錄', rows || '<div style="font-size:12px;">暫無記錄</div>');
 }
 
-/* 管理員後台（密碼 8888：發鑽、禮物改圖／新增、商城上架與自訂價格／名稱／圖示、盲盒新增與自訂機率、麻吉 8 格各自機率、爵位改圖與自訂特權、親密關係圖示上傳） */
 function openAdminGate() {
   if (state.isAdmin) { openAdminPanel(); return; }
   openModal('🔐 管理員權限驗證', `
@@ -2440,7 +2444,6 @@ function renderAll() {
   renderFriends();
 }
 
-/* 每次程式打開都顯示歡迎來到企鵝畫面 */
 document.getElementById('splash-screen').classList.remove('hide');
 renderAll();
 </script>
