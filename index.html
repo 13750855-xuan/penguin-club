@@ -428,7 +428,7 @@
         </div>
         <div class="brand-sub">
           <span id="user-id-label">ID:100001</span>
-          <span><i class="sync-dot"></i> 永久保存</span>
+          <span><i class="sync-dot"></i> 全平台永久保存</span>
         </div>
       </div>
     </div>
@@ -639,8 +639,8 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'penguin_club_v7_nobility_hp';
-const SYNC_CHANNEL = 'penguin_club_realtime_sync_v7';
+const STORAGE_KEY = 'penguin_club_v8_vault_persist';
+const SYNC_CHANNEL = 'penguin_club_realtime_sync_v8';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(SYNC_CHANNEL) : null;
 
 const ANIMALS = [
@@ -790,6 +790,21 @@ function formatDateTimeFull(ts) {
 
 function createDefaultState() {
   const nowTs = Date.now();
+  const u1 = {
+    id: '100001', password: '', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
+    customTitle: '', diamonds: 500000, wealthExp: 10000, charmExp: 10000, totalWin: 12000,
+    nobility: '', litGifts: [], relationships: [], backpack: [], currentBets: {}, lastBets: {}
+  };
+  const u2 = {
+    id: '100002', password: '', nick: '小八', avatar: '🐱', avatarImg: '', coverImg: '',
+    customTitle: '吉伊星河好友', diamonds: 300000, wealthExp: 250000, charmExp: 180000, totalWin: 680000,
+    nobility: 'knight', litGifts: ['g1', 'g2', 'g4'], relationships: [], backpack: [], currentBets: {}, lastBets: {}
+  };
+  const u3 = {
+    id: '100003', password: '', nick: '星河海豚', avatar: '🐬', avatarImg: '', coverImg: '',
+    customTitle: '深海浪花旅人', diamonds: 200000, wealthExp: 120000, charmExp: 90000, totalWin: 420000,
+    nobility: '', litGifts: ['g1', 'g3'], relationships: [], backpack: [], currentBets: {}, lastBets: {}
+  };
   return {
     theme: 'bluepurple',
     chatBgId: 'deep-ocean',
@@ -799,44 +814,13 @@ function createDefaultState() {
     majiSubTab: 'wheel',
     viewingPlayerId: '100001',
     activePmFriendIdx: null,
-    user: {
-      id: '100001',
-      password: '',
-      nick: '企鵝小萌主',
-      avatar: '🐧',
-      avatarImg: '',
-      coverImg: '',
-      customTitle: '',
-      diamonds: 500000,
-      wealthExp: 10000,
-      charmExp: 10000,
-      totalWin: 12000,
-      nobility: '',
-      litGifts: [],
-      relationships: []
-    },
-    accounts: {
-      '100001': {
-        id: '100001', password: '', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
-        customTitle: '', diamonds: 500000, wealthExp: 10000, charmExp: 10000, totalWin: 12000,
-        nobility: '', litGifts: [], relationships: []
-      }
-    },
+    user: Object.assign({}, u1),
+    accounts: { '100001': Object.assign({}, u1), '100002': Object.assign({}, u2), '100003': Object.assign({}, u3) },
+    playerVault: { '100001': Object.assign({}, u1), '100002': Object.assign({}, u2), '100003': Object.assign({}, u3) },
     playersDirectory: {
-      '100001': {
-        id: '100001', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
-        customTitle: '', wealthExp: 10000, charmExp: 10000, totalWin: 12000, nobility: '', litGifts: [], relationships: []
-      },
-      '100002': {
-        id: '100002', nick: '小八', avatar: '🐱', avatarImg: '', coverImg: '',
-        customTitle: '吉伊星河好友', wealthExp: 250000, charmExp: 180000, totalWin: 680000,
-        nobility: 'knight', litGifts: ['g1', 'g2', 'g4'], relationships: []
-      },
-      '100003': {
-        id: '100003', nick: '星河海豚', avatar: '🐬', avatarImg: '', coverImg: '',
-        customTitle: '深海浪花旅人', wealthExp: 120000, charmExp: 90000, totalWin: 420000,
-        nobility: '', litGifts: ['g1', 'g3'], relationships: []
-      }
+      '100001': Object.assign({}, u1),
+      '100002': Object.assign({}, u2),
+      '100003': Object.assign({}, u3)
     },
     leaderboard: [
       { id: '100002', nick: '小八', win: 680000 },
@@ -877,13 +861,17 @@ function createDefaultState() {
       { id: '100003', nick: '星河海豚', avatar: '🐬', online: true, messages: [{ sender: '星河海豚', text: '今天要不要一起玩企鵝的麻吉？', ts: nowTs - 1800000 }] }
     ],
     chats: [
-      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有訊息與遊玩紀錄均永久保存！', ts: nowTs - 7200000 }
+      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有玩家資料與遊玩紀錄均永久保存！', ts: nowTs - 7200000 }
     ],
     cloudUrl: ''
   };
 }
 
 let state = loadState();
+
+function cloneSnapshot(obj) {
+  return JSON.parse(JSON.stringify(obj || {}));
+}
 
 function loadState() {
   try {
@@ -895,15 +883,27 @@ function loadState() {
     m.user = Object.assign(base.user, parsed.user || {});
     if (!Array.isArray(m.user.litGifts)) m.user.litGifts = [];
     if (!Array.isArray(m.user.relationships)) m.user.relationships = [];
-    if (!Array.isArray(m.backpack)) m.backpack = [];
+    if (!Array.isArray(m.backpack)) m.backpack = Array.isArray(m.user.backpack) ? m.user.backpack.slice() : [];
+    if (!m.playerVault || typeof m.playerVault !== 'object') m.playerVault = Object.assign({}, base.playerVault);
+    if (!m.accounts || typeof m.accounts !== 'object') m.accounts = Object.assign({}, base.accounts);
+    if (!m.playersDirectory || typeof m.playersDirectory !== 'object') m.playersDirectory = Object.assign({}, base.playersDirectory);
+
+    Object.keys(m.playerVault).forEach(pid => {
+      const rec = m.playerVault[pid];
+      if (!m.accounts[pid]) m.accounts[pid] = cloneSnapshot(rec);
+      if (!m.playersDirectory[pid]) m.playersDirectory[pid] = cloneSnapshot(rec);
+    });
+    Object.keys(m.accounts).forEach(pid => {
+      if (!m.playerVault[pid]) m.playerVault[pid] = cloneSnapshot(m.accounts[pid]);
+      if (!m.playersDirectory[pid]) m.playersDirectory[pid] = cloneSnapshot(m.accounts[pid]);
+    });
+
     if (!Array.isArray(m.gifts) || !m.gifts.length) m.gifts = JSON.parse(JSON.stringify(DEFAULT_GIFTS));
     if (!Array.isArray(m.nobilityTiers) || !m.nobilityTiers.length) m.nobilityTiers = JSON.parse(JSON.stringify(DEFAULT_NOBILITY));
     if (!Array.isArray(m.blindboxes) || !m.blindboxes.length) m.blindboxes = JSON.parse(JSON.stringify(DEFAULT_BLINDBOXES));
     if (!Array.isArray(m.shopItems) || !m.shopItems.length) m.shopItems = JSON.parse(JSON.stringify(DEFAULT_SHOP_ITEMS));
     if (!m.relIcons || typeof m.relIcons !== 'object') m.relIcons = base.relIcons;
     if (!Array.isArray(m.leaderboard)) m.leaderboard = base.leaderboard;
-    if (!m.playersDirectory || typeof m.playersDirectory !== 'object') m.playersDirectory = base.playersDirectory;
-    if (!m.accounts || typeof m.accounts !== 'object') m.accounts = base.accounts;
     if (!Array.isArray(m.rooms) || !m.rooms.length) m.rooms = base.rooms;
     return m;
   } catch (e) {
@@ -926,31 +926,39 @@ function ensureSelfVoiceRoom() {
   }
 }
 
-function syncCurrentUserDirectory() {
+/* 全平台保存所有玩家完整資料 */
+function syncAllPlayerData() {
   ensureSelfVoiceRoom();
-  state.playersDirectory[state.user.id] = {
+  const prevVaultEntry = state.playerVault[state.user.id] || state.accounts[state.user.id] || {};
+  const fullRecord = {
     id: state.user.id,
+    password: state.user.password !== undefined ? state.user.password : (prevVaultEntry.password || ''),
     nick: state.user.nick,
     avatar: state.user.avatar,
     avatarImg: state.user.avatarImg || '',
     coverImg: state.user.coverImg || '',
     customTitle: state.user.customTitle || '',
-    wealthExp: state.user.wealthExp || 0,
-    charmExp: state.user.charmExp || 0,
-    totalWin: state.user.totalWin || 0,
+    diamonds: Number(state.user.diamonds || 0),
+    wealthExp: Number(state.user.wealthExp || 0),
+    charmExp: Number(state.user.charmExp || 0),
+    totalWin: Number(state.user.totalWin || 0),
     nobility: state.user.nobility || '',
-    litGifts: Array.isArray(state.user.litGifts) ? state.user.litGifts.slice() : [],
-    relationships: Array.isArray(state.user.relationships) ? state.user.relationships.slice() : []
+    litGifts: Array.isArray(state.user.litGifts) ? cloneSnapshot(state.user.litGifts) : [],
+    relationships: Array.isArray(state.user.relationships) ? cloneSnapshot(state.user.relationships) : [],
+    backpack: Array.isArray(state.backpack) ? cloneSnapshot(state.backpack) : [],
+    currentBets: cloneSnapshot(state.currentBets || {}),
+    lastBets: cloneSnapshot(state.lastBets || {}),
+    updatedAt: Date.now()
   };
-  state.accounts[state.user.id] = Object.assign({}, state.user, {
-    litGifts: Array.isArray(state.user.litGifts) ? state.user.litGifts.slice() : [],
-    relationships: Array.isArray(state.user.relationships) ? state.user.relationships.slice() : []
-  });
+
+  state.playerVault[state.user.id] = cloneSnapshot(fullRecord);
+  state.accounts[state.user.id] = cloneSnapshot(fullRecord);
+  state.playersDirectory[state.user.id] = cloneSnapshot(fullRecord);
 }
 
 function saveState(pushCloud = true) {
   try {
-    syncCurrentUserDirectory();
+    syncAllPlayerData();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     if (bc) bc.postMessage({ type: 'SYNC_STATE', payload: state });
     if (pushCloud && state.cloudUrl) {
@@ -1156,10 +1164,10 @@ function renderProfile() {
 }
 
 function openPlayerHomepage(playerId) {
-  syncCurrentUserDirectory();
+  syncAllPlayerData();
   state.viewingPlayerId = playerId || state.user.id;
   const isSelf = state.viewingPlayerId === state.user.id;
-  const p = state.playersDirectory[state.viewingPlayerId] || state.playersDirectory[state.user.id];
+  const p = state.playerVault[state.viewingPlayerId] || state.playersDirectory[state.viewingPlayerId] || state.playersDirectory[state.user.id];
   const wInfo = calcLevelInfo(p.wealthExp);
   const cInfo = calcLevelInfo(p.charmExp);
   const nob = getNobilityObj(p.nobility);
@@ -1373,23 +1381,18 @@ function acceptRelationshipInvite(msgId) {
     targetId: inv.fromId, targetNick: inv.fromNick, relType: inv.relType, icon: inv.icon
   });
 
-  if (!state.playersDirectory[inv.fromId]) {
-    state.playersDirectory[inv.fromId] = {
-      id: inv.fromId, nick: inv.fromNick, avatar: '🐧', avatarImg: '', coverImg: '',
-      customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: []
-    };
-  }
-  const senderDir = state.playersDirectory[inv.fromId];
-  if (!Array.isArray(senderDir.relationships)) senderDir.relationships = [];
-  senderDir.relationships.push({
-    targetId: state.user.id, targetNick: state.user.nick, relType: inv.relType, icon: inv.icon
-  });
-  if (state.accounts[inv.fromId]) {
-    if (!Array.isArray(state.accounts[inv.fromId].relationships)) state.accounts[inv.fromId].relationships = [];
-    state.accounts[inv.fromId].relationships.push({
+  [state.playerVault, state.playersDirectory, state.accounts].forEach(store => {
+    if (!store[inv.fromId]) {
+      store[inv.fromId] = {
+        id: inv.fromId, nick: inv.fromNick, avatar: '🐧', avatarImg: '', coverImg: '',
+        customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [], backpack: []
+      };
+    }
+    if (!Array.isArray(store[inv.fromId].relationships)) store[inv.fromId].relationships = [];
+    store[inv.fromId].relationships.push({
       targetId: state.user.id, targetNick: state.user.nick, relType: inv.relType, icon: inv.icon
     });
-  }
+  });
 
   saveState();
   renderChats();
@@ -1652,6 +1655,7 @@ function pushRewardToBackpack(reward, boxName, extra = {}) {
       relType: extra.relType || '', count: 1
     });
   }
+  state.user.backpack = cloneSnapshot(state.backpack);
 }
 
 function openBackpackModal() {
@@ -1706,11 +1710,12 @@ function confirmSendRelRing(bagIdx) {
   const selId = document.getElementById('rel-target-sel').value;
   const typedId = document.getElementById('rel-target-id').value.trim();
   const targetId = typedId || selId;
-  const dirObj = state.playersDirectory[targetId] || state.friends.find(f => f.id === targetId);
+  const dirObj = state.playerVault[targetId] || state.playersDirectory[targetId] || state.friends.find(f => f.id === targetId);
   const targetNick = dirObj ? dirObj.nick : ('玩家_' + targetId);
 
   if (item.count > 1) item.count -= 1;
   else state.backpack.splice(bagIdx, 1);
+  state.user.backpack = cloneSnapshot(state.backpack);
 
   const customImg = state.relIcons && state.relIcons[rt.key];
   addChat(
@@ -1746,6 +1751,7 @@ function giftFromBackpack(idx) {
   addChat('背包贈禮', state.user.nick, `送出了背包珍藏 ${item.icon}【${item.name}】！`);
   if (item.count > 1) item.count -= 1;
   else state.backpack.splice(idx, 1);
+  state.user.backpack = cloneSnapshot(state.backpack);
   renderProfile(); saveState(); openBackpackModal();
 }
 
@@ -2045,32 +2051,66 @@ function addDemoFriend() {
 function confirmAddFriend() {
   const id = (document.getElementById('add-fid-id').value.trim() || String(Math.floor(100000 + Math.random() * 899999))).slice(0, 8);
   const nick = document.getElementById('add-fid-nick').value.trim() || ('玩家' + id);
-  if (!state.playersDirectory[id]) {
-    state.playersDirectory[id] = { id, nick, avatar: '🐧', avatarImg: '', coverImg: '', customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [] };
+  if (!state.playerVault[id]) {
+    const rec = { id, password: '', nick, avatar: '🐧', avatarImg: '', coverImg: '', customTitle: '', diamonds: 100000, wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [], backpack: [] };
+    state.playerVault[id] = cloneSnapshot(rec);
+    state.playersDirectory[id] = cloneSnapshot(rec);
+    state.accounts[id] = cloneSnapshot(rec);
   }
   state.friends.push({ id, nick, avatar: '🐧', online: true, messages: [{ sender: '系統', text: '已開啟私人聊天室！', ts: Date.now() }] });
   renderFriends(); saveState(); closeModal();
   showToast(`已新增好友 ${nick} (ID:${id})`);
 }
 
+function applyAccountSnapshot(id, pwd, isNew) {
+  const base = createDefaultState().user;
+  if (!isNew) {
+    const saved = state.playerVault[id] || state.accounts[id] || {};
+    state.user = Object.assign(cloneSnapshot(base), cloneSnapshot(saved), {
+      id,
+      password: pwd !== undefined ? pwd : (saved.password || '')
+    });
+    state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
+    state.currentBets = cloneSnapshot(state.user.currentBets || {});
+    state.lastBets = cloneSnapshot(state.user.lastBets || {});
+  } else {
+    const fresh = cloneSnapshot(base);
+    fresh.id = id;
+    fresh.password = pwd || '';
+    fresh.nick = '企鵝旅人_' + id;
+    fresh.wealthExp = 0;
+    fresh.charmExp = 0;
+    fresh.litGifts = [];
+    fresh.relationships = [];
+    fresh.backpack = [];
+    fresh.currentBets = {};
+    fresh.lastBets = {};
+    state.user = fresh;
+    state.backpack = [];
+    state.currentBets = {};
+    state.lastBets = {};
+  }
+}
+
 function openSwitchAccountModal() {
-  const savedList = Object.values(state.accounts || {}).map(acc => `
+  syncAllPlayerData();
+  const savedList = Object.values(state.playerVault || {}).map(acc => `
     <div class="list-item" style="margin-bottom:6px;">
       <div>
         <div style="font-size:12px;font-weight:800;">${acc.nick} <span style="font-size:10px;color:var(--text-muted);">ID:${acc.id}</span></div>
-        <div style="font-size:10px;color:var(--gold-hi);">💎 ${formatNum(acc.diamonds)}</div>
+        <div style="font-size:10px;color:var(--gold-hi);">💎 ${formatNum(acc.diamonds)} · 背包 ${(acc.backpack || []).reduce((s, x) => s + (x.count || 1), 0)} 件</div>
       </div>
       <button class="mini-chip gold" onclick="quickSelectAccount('${acc.id}')">填入此ID</button>
     </div>
   `).join('');
 
-  openModal('🔄 切換帳號（設定 ID 與密碼）', `
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號 ID（最多 8 碼，切換至新 ID 即建立新帳號）</div>
+  openModal('🔄 切換帳號（全平台保存資料）', `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號 ID（最多 8 碼，切換至新 ID 即建立新帳號並永久保存）</div>
     <input id="switch-acc-id" class="field-input" maxlength="8" value="${state.user.id}" placeholder="輸入 1～8 碼 ID" />
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">設定 / 驗證密碼</div>
     <input id="switch-acc-pwd" type="password" class="field-input" placeholder="設定或輸入帳號密碼" />
-    <button class="primary-btn" style="margin-bottom:10px;" onclick="confirmSwitchAccount()">確認切換並儲存帳號</button>
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">本機已保存帳號</div>
+    <button class="primary-btn" style="margin-bottom:10px;" onclick="confirmSwitchAccount()">儲存目前資料並切換帳號</button>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">平台已永久保存的所有玩家帳號</div>
     ${savedList || '<div style="font-size:11px;color:var(--text-muted);">尚無其他帳號</div>'}
   `);
 }
@@ -2086,32 +2126,27 @@ function confirmSwitchAccount() {
   if (!id || id.length > 8) { showToast('ID 需為 1～8 碼'); return; }
   if (!pwd) { showToast('請設定或輸入帳號密碼'); return; }
 
-  syncCurrentUserDirectory();
-  const existing = state.accounts[id];
+  /* 先把目前帳號的完整資料保存進全平台資料庫 */
+  syncAllPlayerData();
+  syncUserToLeaderboard();
+
+  const existing = state.playerVault[id] || state.accounts[id];
   if (existing) {
     if (existing.password && existing.password !== pwd) {
       showToast('該帳號密碼錯誤');
       return;
     }
-    existing.password = pwd;
-    state.user = Object.assign(createDefaultState().user, existing, { id, password: pwd });
+    applyAccountSnapshot(id, pwd, false);
   } else {
-    const fresh = createDefaultState().user;
-    fresh.id = id;
-    fresh.password = pwd;
-    fresh.nick = '企鵝旅人_' + id;
-    fresh.wealthExp = 0;
-    fresh.charmExp = 0;
-    fresh.litGifts = [];
-    fresh.relationships = [];
-    state.user = fresh;
+    applyAccountSnapshot(id, pwd, true);
   }
-  syncCurrentUserDirectory();
+
+  syncAllPlayerData();
   syncUserToLeaderboard();
   renderAll();
   saveState();
   closeModal();
-  showToast(`已切換至帳號 ID:${id}`);
+  showToast(`已保存資料並切換至 ID:${id}`);
 }
 
 function openProfileModal() {
@@ -2144,6 +2179,7 @@ function saveProfileEdit() {
   const newNick = document.getElementById('edit-nick-inp').value.trim();
   if (!newId || newId.length > 8) { showToast('ID 需為 1～8 碼'); return; }
   const taken = (newId !== state.user.id) && (
+    Boolean(state.playerVault[newId]) ||
     Boolean(state.accounts[newId]) ||
     state.friends.some(f => f.id === newId) ||
     state.leaderboard.some(r => r.id === newId)
@@ -2153,8 +2189,10 @@ function saveProfileEdit() {
   const oldId = state.user.id;
   state.user.id = newId;
   if (newNick) state.user.nick = newNick;
-  if (oldId !== newId && state.accounts[oldId]) {
+  if (oldId !== newId) {
+    delete state.playerVault[oldId];
     delete state.accounts[oldId];
+    delete state.playersDirectory[oldId];
   }
   syncMyMicsWithProfile();
   syncUserToLeaderboard();
@@ -2192,6 +2230,7 @@ function verifyAdminPwd() {
 }
 
 function openAdminPanel() {
+  syncAllPlayerData();
   const giftOpts = state.gifts.map((g, i) => `<option value="${i}">${g.name} (💎${formatNum(g.price)})</option>`).join('');
   const nobOpts = state.nobilityTiers.map((n, i) => `<option value="${i}">${n.name} (💎${formatNum(n.price)})</option>`).join('');
   const boxOpts = state.blindboxes.map((b, i) => `<option value="${i}">${b.name}</option>`).join('');
@@ -2203,7 +2242,25 @@ function openAdminPanel() {
     </div>
   `).join('');
 
+  const vaultRows = Object.values(state.playerVault || {}).map(p => {
+    const wLv = calcLevelInfo(p.wealthExp).level;
+    const cLv = calcLevelInfo(p.charmExp).level;
+    const bagCnt = (p.backpack || []).reduce((s, it) => s + (it.count || 1), 0);
+    return `
+      <div class="list-item" style="margin-bottom:5px;font-size:11px;">
+        <div>
+          <b>${p.nick}</b> <span style="color:var(--text-muted);">ID:${p.id}</span>
+          <div style="font-size:10px;color:var(--gold-hi);">💎${formatNum(p.diamonds)} · 財富Lv.${wLv} · 🌹Lv.${cLv} · 背包${bagCnt}</div>
+        </div>
+        <button class="mini-chip" onclick="openPlayerHomepage('${p.id}');closeModal()">主頁</button>
+      </div>
+    `;
+  }).join('');
+
   openModal('⚙️ 企鵝管理員控制後台', `
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">全平台已保存玩家資料 (${Object.keys(state.playerVault || {}).length} 位)</div>
+    <div style="max-height:130px;overflow-y:auto;margin-bottom:10px;">${vaultRows}</div>
+
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">1. 指定玩家 ID 發放鑽石</div>
     <input id="adm-target-id" class="field-input" maxlength="8" value="${state.user.id}" placeholder="輸入目標玩家 ID" />
     <input id="adm-diamond-amt" type="number" class="field-input" placeholder="輸入要發放的鑽石數量" />
@@ -2333,10 +2390,13 @@ function adminSendDiamondsToId() {
   if (targetId === state.user.id) {
     state.user.diamonds += amt;
     renderProfile();
-  } else if (state.accounts[targetId]) {
-    state.accounts[targetId].diamonds = (state.accounts[targetId].diamonds || 0) + amt;
+  } else {
+    [state.playerVault, state.accounts, state.playersDirectory].forEach(store => {
+      if (store[targetId]) store[targetId].diamonds = Number(store[targetId].diamonds || 0) + amt;
+    });
   }
   saveState();
+  openAdminPanel();
   showToast(`已向 ID:${targetId} 發放 ${formatNum(amt)} 鑽石！`);
 }
 
@@ -2426,7 +2486,7 @@ function closeModal() {
 }
 
 function renderAll() {
-  syncCurrentUserDirectory();
+  syncAllPlayerData();
   applyTheme();
   renderProfile();
   renderMics();
