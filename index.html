@@ -243,6 +243,14 @@
   .animal-name { font-size: 10px; font-weight: 800; margin-top: 2px; }
   .animal-bet { font-size: 9px; color: #38bdf8; font-weight: 800; min-height: 12px; }
 
+  .special-bet-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 7px; }
+  .special-btn {
+    padding: 7px 6px; border-radius: 11px; border: 1.5px solid var(--glass-border-strong);
+    background: var(--card-sub); color: var(--text-main); font-size: 11px; font-weight: 800;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .special-btn.active { border-color: var(--gold-hi); background: rgba(251, 191, 36, 0.16); color: #fef08a; }
+
   .bet-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 7px; }
   .chip-btn {
     padding: 7px 2px; border-radius: 999px; font-size: 11px; font-weight: 900;
@@ -345,10 +353,32 @@
   .full-pm-head {
     flex-shrink: 0; padding: calc(env(safe-area-inset-top, 10px) + 8px) 14px 10px;
     display: flex; align-items: center; justify-content: space-between;
-    background: rgba(10, 9, 28, 0.72); border-bottom: 1px solid var(--glass-border);
+    background: rgba(10, 9, 28, 0.78); border-bottom: 1px solid var(--glass-border);
   }
   .full-pm-body {
-    flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+    flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .pm-bubble-row {
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .pm-bubble-row.me {
+    flex-direction: row-reverse;
+  }
+  .pm-av {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: var(--card-sub); border: 1.5px solid var(--gold-hi);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden;
+  }
+  .pm-av img { width: 100%; height: 100%; object-fit: cover; }
+  .pm-content-wrap { max-width: 76%; display: flex; flex-direction: column; gap: 3px; }
+  .pm-bubble-row.me .pm-content-wrap { align-items: flex-end; }
+  .pm-meta { font-size: 10px; color: var(--text-muted); }
+  .pm-bubble {
+    background: var(--glass-elevated); border: 1px solid var(--glass-border-strong);
+    border-radius: 12px; padding: 8px 11px; font-size: 12px; line-height: 1.45; word-break: break-all;
+  }
+  .pm-bubble-row.me .pm-bubble {
+    background: var(--accent-grad); color: #fff; border-color: transparent;
   }
   .full-pm-foot {
     flex-shrink: 0; padding: 8px 12px calc(env(safe-area-inset-bottom, 10px) + 8px);
@@ -428,7 +458,7 @@
         </div>
         <div class="brand-sub">
           <span id="user-id-label">ID:100001</span>
-          <span><i class="sync-dot"></i> 全平台永久保存</span>
+          <span><i class="sync-dot"></i> 全平台即時同步</span>
         </div>
       </div>
     </div>
@@ -532,6 +562,16 @@
             </div>
           </div>
           <div class="wheel-grid" id="wheel-grid"></div>
+          <div class="special-bet-row">
+            <button class="special-btn" id="special-fish-btn" onclick="placeSpecialBet('fish')">
+              <span>🐟 魚群（上排同時中 · 2x）</span>
+              <span id="special-fish-bet" style="font-size:10px;color:#38bdf8;"></span>
+            </button>
+            <button class="special-btn" id="special-boss-btn" onclick="placeSpecialBet('boss')">
+              <span>👑 霸主（下排同時中 · 5x）</span>
+              <span id="special-boss-bet" style="font-size:10px;color:#38bdf8;"></span>
+            </button>
+          </div>
           <div class="bet-bar">
             <button class="chip-btn active" data-chip="50" onclick="selectChip(50,this)">💎50</button>
             <button class="chip-btn" data-chip="500" onclick="selectChip(500,this)">💎500</button>
@@ -639,19 +679,21 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'penguin_club_v8_vault_persist';
-const SYNC_CHANNEL = 'penguin_club_realtime_sync_v8';
+const STORAGE_KEY = 'penguin_club_v9_full_sync';
+const SYNC_CHANNEL = 'penguin_club_realtime_sync_v9';
+const ADMIN_ONLY_ID = '10001';
+const ADMIN_ONLY_PWD = '8888';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(SYNC_CHANNEL) : null;
 
 const ANIMALS = [
-  { id: 0, name: '小丑魚', emoji: '🐠', mult: 5, type: 'fish', weight: 22 },
-  { id: 1, name: '海豚', emoji: '🐬', mult: 5, type: 'fish', weight: 22 },
-  { id: 2, name: '海龜', emoji: '🐢', mult: 5, type: 'fish', weight: 20 },
-  { id: 3, name: '水母', emoji: '🪼', mult: 5, type: 'fish', weight: 18 },
-  { id: 4, name: '虎鯨', emoji: '🐋', mult: 10, type: 'boss', weight: 7 },
-  { id: 5, name: '大白鯊', emoji: '🦈', mult: 15, type: 'boss', weight: 5 },
-  { id: 6, name: '帝王章魚', emoji: '🐙', mult: 25, type: 'boss', weight: 4 },
-  { id: 7, name: '深海企鵝王', emoji: '🐧', mult: 45, type: 'boss', weight: 2 }
+  { id: 0, name: '小丑魚', emoji: '🐠', mult: 5, group: 'fish', weight: 22 },
+  { id: 1, name: '海豚', emoji: '🐬', mult: 5, group: 'fish', weight: 22 },
+  { id: 2, name: '海龜', emoji: '🐢', mult: 5, group: 'fish', weight: 20 },
+  { id: 3, name: '水母', emoji: '🪼', mult: 5, group: 'fish', weight: 18 },
+  { id: 4, name: '虎鯨', emoji: '🐋', mult: 10, group: 'boss', weight: 7 },
+  { id: 5, name: '大白鯊', emoji: '🦈', mult: 15, group: 'boss', weight: 5 },
+  { id: 6, name: '帝王章魚', emoji: '🐙', mult: 25, group: 'boss', weight: 4 },
+  { id: 7, name: '深海企鵝王', emoji: '🐧', mult: 45, group: 'boss', weight: 2 }
 ];
 
 const DEFAULT_GIFTS = [
@@ -788,22 +830,17 @@ function formatDateTimeFull(ts) {
   return `${d.getFullYear()}年${pad(d.getMonth() + 1)}月${pad(d.getDate())}日 ${pad(d.getHours())}時${pad(d.getMinutes())}分`;
 }
 
+function cloneSnapshot(obj) {
+  return JSON.parse(JSON.stringify(obj || {}));
+}
+
 function createDefaultState() {
   const nowTs = Date.now();
   const u1 = {
     id: '100001', password: '', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
     customTitle: '', diamonds: 500000, wealthExp: 10000, charmExp: 10000, totalWin: 12000,
-    nobility: '', litGifts: [], relationships: [], backpack: [], currentBets: {}, lastBets: {}
-  };
-  const u2 = {
-    id: '100002', password: '', nick: '小八', avatar: '🐱', avatarImg: '', coverImg: '',
-    customTitle: '吉伊星河好友', diamonds: 300000, wealthExp: 250000, charmExp: 180000, totalWin: 680000,
-    nobility: 'knight', litGifts: ['g1', 'g2', 'g4'], relationships: [], backpack: [], currentBets: {}, lastBets: {}
-  };
-  const u3 = {
-    id: '100003', password: '', nick: '星河海豚', avatar: '🐬', avatarImg: '', coverImg: '',
-    customTitle: '深海浪花旅人', diamonds: 200000, wealthExp: 120000, charmExp: 90000, totalWin: 420000,
-    nobility: '', litGifts: ['g1', 'g3'], relationships: [], backpack: [], currentBets: {}, lastBets: {}
+    nobility: '', litGifts: [], relationships: [], backpack: [], currentBets: {}, lastBets: {},
+    specialBets: { fish: 0, boss: 0 }, lastSpecialBets: { fish: 0, boss: 0 }, loggedIn: true
   };
   return {
     theme: 'bluepurple',
@@ -814,64 +851,47 @@ function createDefaultState() {
     majiSubTab: 'wheel',
     viewingPlayerId: '100001',
     activePmFriendIdx: null,
-    user: Object.assign({}, u1),
-    accounts: { '100001': Object.assign({}, u1), '100002': Object.assign({}, u2), '100003': Object.assign({}, u3) },
-    playerVault: { '100001': Object.assign({}, u1), '100002': Object.assign({}, u2), '100003': Object.assign({}, u3) },
-    playersDirectory: {
-      '100001': Object.assign({}, u1),
-      '100002': Object.assign({}, u2),
-      '100003': Object.assign({}, u3)
-    },
-    leaderboard: [
-      { id: '100002', nick: '小八', win: 680000 },
-      { id: '100003', nick: '星河海豚', win: 420000 },
-      { id: '100001', nick: '企鵝小萌主', win: 12000 }
-    ],
+    loggedInIds: ['100001'],
+    user: cloneSnapshot(u1),
+    accounts: { '100001': cloneSnapshot(u1) },
+    playerVault: { '100001': cloneSnapshot(u1) },
+    playersDirectory: { '100001': cloneSnapshot(u1) },
+    leaderboard: [{ id: '100001', nick: '企鵝小萌主', win: 12000 }],
     backpack: [],
     gifts: JSON.parse(JSON.stringify(DEFAULT_GIFTS)),
     nobilityTiers: JSON.parse(JSON.stringify(DEFAULT_NOBILITY)),
     blindboxes: JSON.parse(JSON.stringify(DEFAULT_BLINDBOXES)),
     shopItems: JSON.parse(JSON.stringify(DEFAULT_SHOP_ITEMS)),
     relIcons: { lover: '', bestie: '', close: '', parent: '', mentor: '' },
+    specialGroupProbs: { fish: 18, boss: 10 },
     selectedChip: 50,
     currentBets: {},
     lastBets: {},
+    specialBets: { fish: 0, boss: 0 },
+    lastSpecialBets: { fish: 0, boss: 0 },
     roundIndex: 1,
     countdown: 25,
     isSpinning: false,
-    history: [{ round: 1, animalId: 0 }],
+    history: [{ round: 1, animalId: 0, label: '🐠5x' }],
     mics: Array.from({ length: 8 }, (_, i) => ({
-      slot: i + 1,
-      id: i === 0 ? '100003' : '',
-      nick: i === 0 ? '星河海豚' : '',
-      avatar: i === 0 ? '🐬' : '',
-      avatarImg: '',
-      isSelf: false,
-      speaking: false
+      slot: i + 1, id: '', nick: '', avatar: '', avatarImg: '', isSelf: false, speaking: false
     })),
     micOn: false,
     currentRoom: '星河海洋大廳',
     rooms: [
-      { id: 'r_official', name: '星河海洋大廳', ownerId: 'official', host: '企鵝官方', online: 28, isOfficial: true, password: '' },
-      { id: 'r_100001', name: '企鵝小萌主的專屬語音房', ownerId: '100001', host: '企鵝小萌主', online: 1, isOfficial: false, password: '' },
-      { id: 'r_100002', name: '小八的私人語音房', ownerId: '100002', host: '小八', online: 4, isOfficial: false, password: '1234' }
+      { id: 'r_official', name: '星河海洋大廳', ownerId: 'official', host: '企鵝官方', online: 1, isOfficial: true, password: '' },
+      { id: 'r_100001', name: '企鵝小萌主的專屬語音房', ownerId: '100001', host: '企鵝小萌主', online: 1, isOfficial: false, password: '' }
     ],
-    friends: [
-      { id: '100002', nick: '小八', avatar: '🐱', online: true, messages: [{ sender: '小八', text: '嗨！歡迎來到私人聊天室～', ts: nowTs - 3600000 }] },
-      { id: '100003', nick: '星河海豚', avatar: '🐬', online: true, messages: [{ sender: '星河海豚', text: '今天要不要一起玩企鵝的麻吉？', ts: nowTs - 1800000 }] }
-    ],
+    friends: [],
     chats: [
-      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有玩家資料與遊玩紀錄均永久保存！', ts: nowTs - 7200000 }
+      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有玩家資料與後台紀錄均全平台同步保存！', ts: nowTs - 7200000 }
     ],
+    adminLogs: [],
     cloudUrl: ''
   };
 }
 
 let state = loadState();
-
-function cloneSnapshot(obj) {
-  return JSON.parse(JSON.stringify(obj || {}));
-}
 
 function loadState() {
   try {
@@ -880,13 +900,15 @@ function loadState() {
     const parsed = JSON.parse(raw);
     const base = createDefaultState();
     const m = Object.assign(base, parsed);
-    m.user = Object.assign(base.user, parsed.user || {});
+    m.user = Object.assign(cloneSnapshot(base.user), parsed.user || {});
     if (!Array.isArray(m.user.litGifts)) m.user.litGifts = [];
     if (!Array.isArray(m.user.relationships)) m.user.relationships = [];
-    if (!Array.isArray(m.backpack)) m.backpack = Array.isArray(m.user.backpack) ? m.user.backpack.slice() : [];
-    if (!m.playerVault || typeof m.playerVault !== 'object') m.playerVault = Object.assign({}, base.playerVault);
-    if (!m.accounts || typeof m.accounts !== 'object') m.accounts = Object.assign({}, base.accounts);
-    if (!m.playersDirectory || typeof m.playersDirectory !== 'object') m.playersDirectory = Object.assign({}, base.playersDirectory);
+    if (!Array.isArray(m.backpack)) m.backpack = Array.isArray(m.user.backpack) ? cloneSnapshot(m.user.backpack) : [];
+    if (!m.playerVault || typeof m.playerVault !== 'object') m.playerVault = {};
+    if (!m.accounts || typeof m.accounts !== 'object') m.accounts = {};
+    if (!m.playersDirectory || typeof m.playersDirectory !== 'object') m.playersDirectory = {};
+    if (!Array.isArray(m.loggedInIds)) m.loggedInIds = [m.user.id];
+    if (!m.loggedInIds.includes(m.user.id)) m.loggedInIds.push(m.user.id);
 
     Object.keys(m.playerVault).forEach(pid => {
       const rec = m.playerVault[pid];
@@ -898,6 +920,10 @@ function loadState() {
       if (!m.playersDirectory[pid]) m.playersDirectory[pid] = cloneSnapshot(m.accounts[pid]);
     });
 
+    if (!m.specialGroupProbs || typeof m.specialGroupProbs !== 'object') m.specialGroupProbs = { fish: 18, boss: 10 };
+    if (!m.specialBets || typeof m.specialBets !== 'object') m.specialBets = { fish: 0, boss: 0 };
+    if (!m.lastSpecialBets || typeof m.lastSpecialBets !== 'object') m.lastSpecialBets = { fish: 0, boss: 0 };
+    if (!Array.isArray(m.adminLogs)) m.adminLogs = [];
     if (!Array.isArray(m.gifts) || !m.gifts.length) m.gifts = JSON.parse(JSON.stringify(DEFAULT_GIFTS));
     if (!Array.isArray(m.nobilityTiers) || !m.nobilityTiers.length) m.nobilityTiers = JSON.parse(JSON.stringify(DEFAULT_NOBILITY));
     if (!Array.isArray(m.blindboxes) || !m.blindboxes.length) m.blindboxes = JSON.parse(JSON.stringify(DEFAULT_BLINDBOXES));
@@ -905,10 +931,22 @@ function loadState() {
     if (!m.relIcons || typeof m.relIcons !== 'object') m.relIcons = base.relIcons;
     if (!Array.isArray(m.leaderboard)) m.leaderboard = base.leaderboard;
     if (!Array.isArray(m.rooms) || !m.rooms.length) m.rooms = base.rooms;
+    if (!Array.isArray(m.friends)) m.friends = [];
     return m;
   } catch (e) {
     return createDefaultState();
   }
+}
+
+function recordAdminLog(actionText) {
+  if (!Array.isArray(state.adminLogs)) state.adminLogs = [];
+  state.adminLogs.unshift({
+    id: 'log_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    operatorId: state.user.id,
+    action: actionText,
+    ts: Date.now()
+  });
+  if (state.adminLogs.length > 80) state.adminLogs.pop();
 }
 
 function ensureSelfVoiceRoom() {
@@ -926,9 +964,11 @@ function ensureSelfVoiceRoom() {
   }
 }
 
-/* 全平台保存所有玩家完整資料 */
 function syncAllPlayerData() {
   ensureSelfVoiceRoom();
+  if (!Array.isArray(state.loggedInIds)) state.loggedInIds = [];
+  if (!state.loggedInIds.includes(state.user.id)) state.loggedInIds.push(state.user.id);
+
   const prevVaultEntry = state.playerVault[state.user.id] || state.accounts[state.user.id] || {};
   const fullRecord = {
     id: state.user.id,
@@ -948,6 +988,8 @@ function syncAllPlayerData() {
     backpack: Array.isArray(state.backpack) ? cloneSnapshot(state.backpack) : [],
     currentBets: cloneSnapshot(state.currentBets || {}),
     lastBets: cloneSnapshot(state.lastBets || {}),
+    specialBets: cloneSnapshot(state.specialBets || { fish: 0, boss: 0 }),
+    lastSpecialBets: cloneSnapshot(state.lastSpecialBets || { fish: 0, boss: 0 }),
     updatedAt: Date.now()
   };
 
@@ -976,7 +1018,12 @@ if (bc) {
     if (ev.data && ev.data.type === 'SYNC_STATE' && ev.data.payload) {
       const incoming = ev.data.payload;
       if (!state.isSpinning) {
-        state = Object.assign(state, incoming);
+        const keepId = state.user.id;
+        state = Object.assign({}, state, incoming);
+        if (state.playerVault && state.playerVault[keepId]) {
+          state.user = Object.assign(cloneSnapshot(createDefaultState().user), cloneSnapshot(state.playerVault[keepId]));
+          state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
+        }
         renderAll();
       }
     }
@@ -1152,8 +1199,9 @@ function renderProfile() {
   document.getElementById('my-nobility-chip').textContent = nob ? `👑 ${nob.name}` : '👑 開通爵位';
 
   const roleEl = document.getElementById('role-badge');
-  roleEl.textContent = state.isAdmin ? '管理員' : '會員';
-  roleEl.classList.toggle('is-admin', state.isAdmin);
+  const canAdmin = state.isAdmin && state.user.id === ADMIN_ONLY_ID;
+  roleEl.textContent = canAdmin ? '管理員' : '會員';
+  roleEl.classList.toggle('is-admin', canAdmin);
 
   const totalBagCount = state.backpack.reduce((sum, item) => sum + (item.count || 1), 0);
   document.getElementById('bag-count-badge').textContent = totalBagCount;
@@ -1474,8 +1522,21 @@ function renderWheel() {
       </div>
     `;
   }).join('');
+
+  const fishBet = (state.specialBets && state.specialBets.fish) || 0;
+  const bossBet = (state.specialBets && state.specialBets.boss) || 0;
+  const fishBtn = document.getElementById('special-fish-btn');
+  const bossBtn = document.getElementById('special-boss-btn');
+  if (fishBtn) fishBtn.classList.toggle('active', fishBet > 0);
+  if (bossBtn) bossBtn.classList.toggle('active', bossBet > 0);
+  const fishLbl = document.getElementById('special-fish-bet');
+  const bossLbl = document.getElementById('special-boss-bet');
+  if (fishLbl) fishLbl.textContent = fishBet > 0 ? `已押 💎${formatNum(fishBet)}` : '';
+  if (bossLbl) bossLbl.textContent = bossBet > 0 ? `已押 💎${formatNum(bossBet)}` : '';
+
   const histBox = document.getElementById('history-icons');
   histBox.innerHTML = state.history.slice(-8).reverse().map(h => {
+    if (h.label) return `<span class="hist-badge">${h.label}</span>`;
     const a = ANIMALS[h.animalId] || ANIMALS[0];
     return `<span class="hist-badge">${a.emoji}${a.mult}x</span>`;
   }).join('');
@@ -1498,33 +1559,58 @@ function placeBet(animalId) {
   renderProfile(); renderWheel(); saveState();
 }
 
+function placeSpecialBet(groupKey) {
+  if (state.isSpinning) return;
+  const cost = state.selectedChip;
+  if (state.user.diamonds < cost) { showToast('鑽石不足'); return; }
+  if (!state.specialBets) state.specialBets = { fish: 0, boss: 0 };
+  state.user.diamonds -= cost;
+  state.user.wealthExp += cost;
+  state.specialBets[groupKey] = (state.specialBets[groupKey] || 0) + cost;
+  checkMax666AndNotify('wealth', calcLevelInfo(state.user.wealthExp));
+  renderProfile(); renderWheel(); saveState();
+}
+
 function repeatLastBet() {
   if (state.isSpinning) return;
   const entries = Object.entries(state.lastBets || {});
-  if (!entries.length) { showToast('上一輪沒有投注記錄'); return; }
-  const total = entries.reduce((s, [, v]) => s + v, 0);
+  const spEntries = Object.entries(state.lastSpecialBets || {}).filter(([, v]) => v > 0);
+  if (!entries.length && !spEntries.length) { showToast('上一輪沒有投注記錄'); return; }
+  const total = entries.reduce((s, [, v]) => s + v, 0) + spEntries.reduce((s, [, v]) => s + v, 0);
   if (state.user.diamonds < total) { showToast('鑽石不足'); return; }
   state.user.diamonds -= total;
   state.user.wealthExp += total;
   entries.forEach(([id, v]) => { state.currentBets[id] = (state.currentBets[id] || 0) + v; });
+  if (!state.specialBets) state.specialBets = { fish: 0, boss: 0 };
+  spEntries.forEach(([k, v]) => { state.specialBets[k] = (state.specialBets[k] || 0) + v; });
   renderProfile(); renderWheel(); saveState();
 }
 
-function pickWinningAnimal() {
+function pickOutcome() {
+  const fishP = Math.max(0, Number((state.specialGroupProbs && state.specialGroupProbs.fish) || 0));
+  const bossP = Math.max(0, Number((state.specialGroupProbs && state.specialGroupProbs.boss) || 0));
+  const rollGroup = Math.random() * 100;
+  if (rollGroup < fishP) {
+    return { mode: 'fish', ids: [0, 1, 2, 3], mult: 2, label: '🐟魚群2x' };
+  }
+  if (rollGroup < fishP + bossP) {
+    return { mode: 'boss', ids: [4, 5, 6, 7], mult: 5, label: '👑霸主5x' };
+  }
   const totalW = ANIMALS.reduce((s, a) => s + Math.max(0.1, Number(a.weight || 1)), 0);
   let r = Math.random() * totalW;
   for (const a of ANIMALS) {
     r -= Math.max(0.1, Number(a.weight || 1));
-    if (r <= 0) return a;
+    if (r <= 0) return { mode: 'single', ids: [a.id], animal: a, mult: a.mult, label: `${a.emoji}${a.mult}x` };
   }
-  return ANIMALS[0];
+  return { mode: 'single', ids: [0], animal: ANIMALS[0], mult: ANIMALS[0].mult, label: `${ANIMALS[0].emoji}${ANIMALS[0].mult}x` };
 }
 
 function spinNow() {
   if (state.isSpinning) return;
   state.isSpinning = true;
-  const winner = pickWinningAnimal();
-  const totalSteps = 16 + winner.id;
+  const outcome = pickOutcome();
+  const anchorId = outcome.ids[0];
+  const totalSteps = 16 + anchorId;
   let step = 0;
 
   const timer = setInterval(() => {
@@ -1536,25 +1622,41 @@ function spinNow() {
     if (step >= totalSteps) {
       clearInterval(timer);
       document.querySelectorAll('.animal-cell').forEach(c => c.classList.remove('cursor'));
-      const winCell = document.getElementById('cell-' + winner.id);
-      if (winCell) winCell.classList.add('winner');
+      outcome.ids.forEach(id => {
+        const winCell = document.getElementById('cell-' + id);
+        if (winCell) winCell.classList.add('winner');
+      });
 
-      const betOnWin = state.currentBets[winner.id] || 0;
-      const prize = betOnWin * winner.mult;
+      let prize = 0;
+      outcome.ids.forEach(id => {
+        const b = state.currentBets[id] || 0;
+        const a = ANIMALS[id];
+        if (b > 0 && a) prize += b * a.mult;
+      });
+      const spBets = state.specialBets || { fish: 0, boss: 0 };
+      if (outcome.mode === 'fish' && spBets.fish > 0) prize += spBets.fish * 2;
+      if (outcome.mode === 'boss' && spBets.boss > 0) prize += spBets.boss * 5;
+
+      const summaryName = outcome.mode === 'fish'
+        ? '🐟魚群（上排同時中）'
+        : (outcome.mode === 'boss' ? '👑霸主（下排同時中）' : `${outcome.animal.emoji}${outcome.animal.name}`);
+
       if (prize > 0) {
         state.user.diamonds += prize;
         state.user.totalWin = (state.user.totalWin || 0) + prize;
         syncUserToLeaderboard();
-        showToast(`🎉 開出【${winner.name}】！贏得 ${formatNum(prize)} 鑽石`);
-        addChat('喜報', state.user.nick, `在《企鵝的麻吉》猜中 ${winner.emoji}${winner.name} 贏得 ${formatNum(prize)} 鑽石！`);
+        showToast(`🎉 開出【${summaryName}】！贏得 ${formatNum(prize)} 鑽石`);
+        addChat('喜報', state.user.nick, `在《企鵝的麻吉》開出 ${summaryName}，贏得 ${formatNum(prize)} 鑽石！`);
       } else {
-        showToast(`本輪開出 ${winner.emoji} ${winner.name} (${winner.mult}x)`);
+        showToast(`本輪開出 ${summaryName}`);
       }
 
-      state.history.push({ round: state.roundIndex, animalId: winner.id });
+      state.history.push({ round: state.roundIndex, animalId: anchorId, label: outcome.label });
       if (state.history.length > 50) state.history.shift();
       if (Object.keys(state.currentBets).length > 0) state.lastBets = Object.assign({}, state.currentBets);
+      if (spBets.fish > 0 || spBets.boss > 0) state.lastSpecialBets = Object.assign({}, spBets);
       state.currentBets = {};
+      state.specialBets = { fish: 0, boss: 0 };
       state.roundIndex += 1;
       state.countdown = 25;
       state.isSpinning = false;
@@ -1985,6 +2087,10 @@ function confirmCreateRoom() {
 
 function renderFriends() {
   const list = document.getElementById('friend-list');
+  if (!state.friends.length) {
+    list.innerHTML = `<div style="font-size:11px;color:var(--text-muted);padding:8px 2px;">尚無好友，點選右上角「＋ 搜尋ID加好友」新增。</div>`;
+    return;
+  }
   list.innerHTML = state.friends.map((f, idx) => `
     <div class="list-item">
       <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="openPlayerHomepage('${f.id}')">
@@ -1999,11 +2105,20 @@ function renderFriends() {
   `).join('');
 }
 
+function renderAvatarSmallHtml(playerObj, fallbackEmoji) {
+  if (playerObj && playerObj.avatarImg) {
+    return `<img src="${playerObj.avatarImg}" alt="av" />`;
+  }
+  return (playerObj && playerObj.avatar) || fallbackEmoji || '🐧';
+}
+
 function openFullscreenPm(idx) {
+  syncAllPlayerData();
   const f = state.friends[idx];
   if (!f) return;
   state.activePmFriendIdx = idx;
-  document.getElementById('full-pm-title').textContent = `🔒 ${f.nick} (ID:${f.id})`;
+  const peer = state.playerVault[f.id] || state.playersDirectory[f.id] || f;
+  document.getElementById('full-pm-title').textContent = `💬 ${peer.nick || f.nick} (ID:${f.id})`;
   renderFullscreenPmBody(f);
   document.getElementById('fullscreen-pm-overlay').classList.add('show');
 }
@@ -2012,11 +2127,27 @@ function renderFullscreenPmBody(f) {
   const bgObj = CHAT_BG_THEMES.find(x => x.id === state.chatBgId) || CHAT_BG_THEMES[0];
   const body = document.getElementById('full-pm-body');
   body.style.background = bgObj.bg;
+  const peer = state.playerVault[f.id] || state.playersDirectory[f.id] || f;
+
   body.innerHTML = (f.messages || []).map(m => {
     const isObj = typeof m === 'object' && m !== null;
+    const senderId = isObj ? (m.senderId || f.id) : f.id;
+    const senderName = isObj ? (m.sender || peer.nick || f.nick) : (peer.nick || f.nick);
     const text = isObj ? m.text : String(m);
-    const timeStr = isObj && m.ts ? `<div class="chat-time">${formatDateTimeFull(m.ts)}</div>` : '';
-    return `<div class="chat-msg-item">${timeStr}<div class="chat-msg">${text}</div></div>`;
+    const timeStr = isObj && m.ts ? formatDateTimeFull(m.ts) : '';
+    const isMe = senderId === state.user.id;
+    const speakerObj = isMe ? state.user : peer;
+    const avHtml = renderAvatarSmallHtml(speakerObj, isMe ? state.user.avatar : f.avatar);
+
+    return `
+      <div class="pm-bubble-row ${isMe ? 'me' : ''}">
+        <div class="pm-av" onclick="openPlayerHomepage('${senderId}')">${avHtml}</div>
+        <div class="pm-content-wrap">
+          <div class="pm-meta">${senderName} · ${timeStr}</div>
+          <div class="pm-bubble">${text}</div>
+        </div>
+      </div>
+    `;
   }).join('');
   body.scrollTop = body.scrollHeight;
 }
@@ -2034,7 +2165,12 @@ function sendFullscreenPm() {
   const txt = inp.value.trim();
   if (!f || !txt) return;
   if (!Array.isArray(f.messages)) f.messages = [];
-  f.messages.push({ sender: state.user.nick, text: `${state.user.nick}：${txt}`, ts: Date.now() });
+  f.messages.push({
+    senderId: state.user.id,
+    sender: state.user.nick,
+    text: txt,
+    ts: Date.now()
+  });
   inp.value = '';
   saveState();
   renderFullscreenPmBody(f);
@@ -2057,7 +2193,10 @@ function confirmAddFriend() {
     state.playersDirectory[id] = cloneSnapshot(rec);
     state.accounts[id] = cloneSnapshot(rec);
   }
-  state.friends.push({ id, nick, avatar: '🐧', online: true, messages: [{ sender: '系統', text: '已開啟私人聊天室！', ts: Date.now() }] });
+  state.friends.push({
+    id, nick, avatar: '🐧', online: true,
+    messages: [{ senderId: id, sender: nick, text: '嗨！我們已經成為好友了～', ts: Date.now() }]
+  });
   renderFriends(); saveState(); closeModal();
   showToast(`已新增好友 ${nick} (ID:${id})`);
 }
@@ -2073,6 +2212,8 @@ function applyAccountSnapshot(id, pwd, isNew) {
     state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
     state.currentBets = cloneSnapshot(state.user.currentBets || {});
     state.lastBets = cloneSnapshot(state.user.lastBets || {});
+    state.specialBets = cloneSnapshot(state.user.specialBets || { fish: 0, boss: 0 });
+    state.lastSpecialBets = cloneSnapshot(state.user.lastSpecialBets || { fish: 0, boss: 0 });
   } else {
     const fresh = cloneSnapshot(base);
     fresh.id = id;
@@ -2085,33 +2226,44 @@ function applyAccountSnapshot(id, pwd, isNew) {
     fresh.backpack = [];
     fresh.currentBets = {};
     fresh.lastBets = {};
+    fresh.specialBets = { fish: 0, boss: 0 };
+    fresh.lastSpecialBets = { fish: 0, boss: 0 };
     state.user = fresh;
     state.backpack = [];
     state.currentBets = {};
     state.lastBets = {};
+    state.specialBets = { fish: 0, boss: 0 };
+    state.lastSpecialBets = { fish: 0, boss: 0 };
+  }
+  if (state.user.id !== ADMIN_ONLY_ID) {
+    state.isAdmin = false;
   }
 }
 
 function openSwitchAccountModal() {
   syncAllPlayerData();
-  const savedList = Object.values(state.playerVault || {}).map(acc => `
-    <div class="list-item" style="margin-bottom:6px;">
-      <div>
-        <div style="font-size:12px;font-weight:800;">${acc.nick} <span style="font-size:10px;color:var(--text-muted);">ID:${acc.id}</span></div>
-        <div style="font-size:10px;color:var(--gold-hi);">💎 ${formatNum(acc.diamonds)} · 背包 ${(acc.backpack || []).reduce((s, x) => s + (x.count || 1), 0)} 件</div>
+  const idsToShow = Array.from(new Set(state.loggedInIds || [state.user.id]));
+  const savedList = idsToShow.map(id => {
+    const acc = state.playerVault[id] || state.accounts[id] || { id, nick: '玩家_' + id, diamonds: 0, backpack: [] };
+    return `
+      <div class="list-item" style="margin-bottom:6px;">
+        <div>
+          <div style="font-size:12px;font-weight:800;">${acc.nick} <span style="font-size:10px;color:var(--text-muted);">ID:${acc.id}</span></div>
+          <div style="font-size:10px;color:var(--gold-hi);">💎 ${formatNum(acc.diamonds)} · 背包 ${(acc.backpack || []).reduce((s, x) => s + (x.count || 1), 0)} 件</div>
+        </div>
+        <button class="mini-chip gold" onclick="quickSelectAccount('${acc.id}')">填入此ID</button>
       </div>
-      <button class="mini-chip gold" onclick="quickSelectAccount('${acc.id}')">填入此ID</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
-  openModal('🔄 切換帳號（全平台保存資料）', `
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號 ID（最多 8 碼，切換至新 ID 即建立新帳號並永久保存）</div>
+  openModal('🔄 切換帳號（僅保留登入過的 ID）', `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號 ID（最多 8 碼）</div>
     <input id="switch-acc-id" class="field-input" maxlength="8" value="${state.user.id}" placeholder="輸入 1～8 碼 ID" />
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">設定 / 驗證密碼</div>
     <input id="switch-acc-pwd" type="password" class="field-input" placeholder="設定或輸入帳號密碼" />
-    <button class="primary-btn" style="margin-bottom:10px;" onclick="confirmSwitchAccount()">儲存目前資料並切換帳號</button>
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">平台已永久保存的所有玩家帳號</div>
-    ${savedList || '<div style="font-size:11px;color:var(--text-muted);">尚無其他帳號</div>'}
+    <button class="primary-btn" style="margin-bottom:10px;" onclick="confirmSwitchAccount()">儲存目前資料並登入／切換</button>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">已登入過的帳號 ID</div>
+    ${savedList || '<div style="font-size:11px;color:var(--text-muted);">尚無其他登入記錄</div>'}
   `);
 }
 
@@ -2126,7 +2278,6 @@ function confirmSwitchAccount() {
   if (!id || id.length > 8) { showToast('ID 需為 1～8 碼'); return; }
   if (!pwd) { showToast('請設定或輸入帳號密碼'); return; }
 
-  /* 先把目前帳號的完整資料保存進全平台資料庫 */
   syncAllPlayerData();
   syncUserToLeaderboard();
 
@@ -2141,12 +2292,15 @@ function confirmSwitchAccount() {
     applyAccountSnapshot(id, pwd, true);
   }
 
+  if (!Array.isArray(state.loggedInIds)) state.loggedInIds = [];
+  if (!state.loggedInIds.includes(id)) state.loggedInIds.push(id);
+
   syncAllPlayerData();
   syncUserToLeaderboard();
   renderAll();
   saveState();
   closeModal();
-  showToast(`已保存資料並切換至 ID:${id}`);
+  showToast(`已登入帳號 ID:${id}`);
 }
 
 function openProfileModal() {
@@ -2193,7 +2347,11 @@ function saveProfileEdit() {
     delete state.playerVault[oldId];
     delete state.accounts[oldId];
     delete state.playersDirectory[oldId];
+    state.loggedInIds = (state.loggedInIds || []).filter(x => x !== oldId);
   }
+  if (!state.loggedInIds.includes(newId)) state.loggedInIds.push(newId);
+  if (newId !== ADMIN_ONLY_ID) state.isAdmin = false;
+
   syncMyMicsWithProfile();
   syncUserToLeaderboard();
   renderAll();
@@ -2204,32 +2362,44 @@ function saveProfileEdit() {
 
 function openHistoryModal() {
   const rows = state.history.slice().reverse().map(h => {
-    const a = ANIMALS[h.animalId] || ANIMALS[0];
+    const label = h.label || `${(ANIMALS[h.animalId] || ANIMALS[0]).emoji}${(ANIMALS[h.animalId] || ANIMALS[0]).name}`;
     return `<div class="list-item" style="margin-bottom:4px;font-size:11px;">
       <span>第 ${h.round} 輪</span>
-      <span>${a.emoji} <b>${a.name}</b> (${a.mult}x)</span>
+      <b>${label}</b>
     </div>`;
   }).join('');
   openModal('📜 《企鵝的麻吉》開獎記錄', rows || '<div style="font-size:12px;">暫無記錄</div>');
 }
 
 function openAdminGate() {
-  if (state.isAdmin) { openAdminPanel(); return; }
-  openModal('🔐 管理員權限驗證', `
+  if (state.isAdmin && state.user.id === ADMIN_ONLY_ID) { openAdminPanel(); return; }
+  openModal('🔐 管理員權限驗證（限 ID:10001）', `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">目前登入 ID：${state.user.id}（僅 10001 帳號可驗證為管理員）</div>
     <input id="admin-pwd-inp" type="password" class="field-input" placeholder="請輸入管理員密碼" />
     <button class="primary-btn" onclick="verifyAdminPwd()">解鎖管理員後台</button>
   `);
 }
 
 function verifyAdminPwd() {
-  if (document.getElementById('admin-pwd-inp').value.trim() === '8888') {
+  if (state.user.id !== ADMIN_ONLY_ID) {
+    showToast('只有 10001 帳號才能成為管理員');
+    return;
+  }
+  if (document.getElementById('admin-pwd-inp').value.trim() === ADMIN_ONLY_PWD) {
     state.isAdmin = true;
+    recordAdminLog('管理員 10001 解鎖後台');
     renderProfile(); saveState(); openAdminPanel();
     showToast('已解鎖管理員後台');
-  } else showToast('密碼錯誤');
+  } else {
+    showToast('密碼錯誤');
+  }
 }
 
 function openAdminPanel() {
+  if (state.user.id !== ADMIN_ONLY_ID || !state.isAdmin) {
+    showToast('僅限 10001 管理員操作');
+    return;
+  }
   syncAllPlayerData();
   const giftOpts = state.gifts.map((g, i) => `<option value="${i}">${g.name} (💎${formatNum(g.price)})</option>`).join('');
   const nobOpts = state.nobilityTiers.map((n, i) => `<option value="${i}">${n.name} (💎${formatNum(n.price)})</option>`).join('');
@@ -2257,9 +2427,22 @@ function openAdminPanel() {
     `;
   }).join('');
 
-  openModal('⚙️ 企鵝管理員控制後台', `
+  const logRows = (state.adminLogs || []).slice(0, 12).map(l => `
+    <div class="list-item" style="margin-bottom:4px;font-size:10px;">
+      <span>${l.action}</span>
+      <span style="color:var(--text-muted);">${formatDateTimeFull(l.ts)}</span>
+    </div>
+  `).join('');
+
+  const fishProb = (state.specialGroupProbs && state.specialGroupProbs.fish) || 0;
+  const bossProb = (state.specialGroupProbs && state.specialGroupProbs.boss) || 0;
+
+  openModal('⚙️ 企鵝管理員控制後台（ID:10001）', `
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">後台操作紀錄 (${(state.adminLogs || []).length})</div>
+    <div style="max-height:110px;overflow-y:auto;margin-bottom:10px;">${logRows || '<div style="font-size:10px;color:var(--text-muted);">尚無後台紀錄</div>'}</div>
+
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">全平台已保存玩家資料 (${Object.keys(state.playerVault || {}).length} 位)</div>
-    <div style="max-height:130px;overflow-y:auto;margin-bottom:10px;">${vaultRows}</div>
+    <div style="max-height:120px;overflow-y:auto;margin-bottom:10px;">${vaultRows}</div>
 
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">1. 指定玩家 ID 發放鑽石</div>
     <input id="adm-target-id" class="field-input" maxlength="8" value="${state.user.id}" placeholder="輸入目標玩家 ID" />
@@ -2307,9 +2490,17 @@ function openAdminPanel() {
     <input id="adm-nob-perk-inp" class="field-input" placeholder="輸入該爵位自訂特權說明" />
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveNobPerk()">儲存爵位特權</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">7. 企鵝的麻吉 8 格各自權重機率</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">7. 企鵝的麻吉 · 魚群／霸主概率與 8 格權重</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;font-size:11px;">
+      <span>🐟 魚群（上排同時中）概率 %</span>
+      <input id="adm-fish-prob" type="number" min="0" max="90" step="1" value="${fishProb}" style="width:76px;padding:4px 6px;border-radius:8px;background:var(--card-sub);color:#fff;border:1px solid var(--glass-border);" />
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;font-size:11px;">
+      <span>👑 霸主（下排同時中）概率 %</span>
+      <input id="adm-boss-prob" type="number" min="0" max="90" step="1" value="${bossProb}" style="width:76px;padding:4px 6px;border-radius:8px;background:var(--card-sub);color:#fff;border:1px solid var(--glass-border);" />
+    </div>
     <div style="margin-bottom:6px;">${animalInputs}</div>
-    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveAnimalWeights()">儲存轉盤 8 格機率</button>
+    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveAnimalWeights()">儲存魚群／霸主概率與 8 格機率</button>
 
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">8. 雲端同步網址（選填）</div>
     <input id="adm-cloud-url" class="field-input" value="${state.cloudUrl || ''}" placeholder="https://xxx-default-rtdb.firebaseio.com" />
@@ -2340,6 +2531,7 @@ function adminAddShopItem() {
     id: 'sh_' + Date.now(), name, icon, img: _stagedShopImg || '', price, relType
   });
   _stagedShopImg = '';
+  recordAdminLog(`上架商城商品【${name}】(💎${formatNum(price)})`);
   renderShop(); saveState(); openAdminPanel();
   showToast(`已上架商城商品【${name}】`);
 }
@@ -2352,6 +2544,7 @@ function adminUploadRelImg(e) {
   reader.onload = () => {
     if (!state.relIcons) state.relIcons = {};
     state.relIcons[key] = reader.result;
+    recordAdminLog(`更新親密關係圖示 (${key})`);
     saveState();
     showToast('已更新親密關係圖示');
   };
@@ -2379,6 +2572,7 @@ function adminSaveBoxProbs() {
     const inp = document.getElementById('adm-bprob-' + i);
     if (inp) r.prob = Math.max(0, Number(inp.value || 0));
   });
+  recordAdminLog(`更新盲盒【${box.name}】抽獎機率`);
   saveState();
   showToast(`已更新【${box.name}】抽獎機率`);
 }
@@ -2395,6 +2589,7 @@ function adminSendDiamondsToId() {
       if (store[targetId]) store[targetId].diamonds = Number(store[targetId].diamonds || 0) + amt;
     });
   }
+  recordAdminLog(`發放 ${formatNum(amt)} 鑽石給 ID:${targetId}`);
   saveState();
   openAdminPanel();
   showToast(`已向 ID:${targetId} 發放 ${formatNum(amt)} 鑽石！`);
@@ -2407,6 +2602,7 @@ function adminUploadGiftImg(e) {
   const reader = new FileReader();
   reader.onload = () => {
     state.gifts[idx].img = reader.result;
+    recordAdminLog(`更新禮物【${state.gifts[idx].name}】圖片`);
     renderGifts(); saveState();
     showToast(`已更新【${state.gifts[idx].name}】圖片`);
   };
@@ -2418,6 +2614,7 @@ function adminAddGiftSlot() {
   const price = Math.max(1, Number(document.getElementById('adm-new-gift-price').value || 100));
   if (!name) { showToast('請輸入禮物名稱'); return; }
   state.gifts.push({ id: 'g_' + Date.now(), name, icon: '🎀', img: '', price });
+  recordAdminLog(`新增禮物【${name}】(💎${formatNum(price)})`);
   renderGifts(); saveState(); openAdminPanel();
   showToast(`已新增禮物【${name}】`);
 }
@@ -2434,6 +2631,7 @@ function adminAddBlindBox() {
       { name: '傳說企鵝秘寶', icon: '👑', value: price * 10, prob: 10 }
     ]
   });
+  recordAdminLog(`新增盲盒【${name}】(💎${formatNum(price)})`);
   renderBlindBoxes(); saveState(); openAdminPanel();
   showToast(`已新增盲盒【${name}】`);
 }
@@ -2445,6 +2643,7 @@ function adminUploadNobImg(e) {
   const reader = new FileReader();
   reader.onload = () => {
     state.nobilityTiers[idx].img = reader.result;
+    recordAdminLog(`更新爵位【${state.nobilityTiers[idx].name}】圖標`);
     renderNobility(); saveState();
     showToast(`已更新【${state.nobilityTiers[idx].name}】圖標`);
   };
@@ -2456,21 +2655,27 @@ function adminSaveNobPerk() {
   const perk = document.getElementById('adm-nob-perk-inp').value.trim();
   if (!state.nobilityTiers[idx]) return;
   if (perk) state.nobilityTiers[idx].perk = perk;
+  recordAdminLog(`更新爵位【${state.nobilityTiers[idx].name}】特權`);
   renderNobility(); saveState();
   showToast(`已更新【${state.nobilityTiers[idx].name}】特權`);
 }
 
 function adminSaveAnimalWeights() {
+  const fishP = Math.max(0, Math.min(90, Number(document.getElementById('adm-fish-prob').value || 0)));
+  const bossP = Math.max(0, Math.min(90, Number(document.getElementById('adm-boss-prob').value || 0)));
+  state.specialGroupProbs = { fish: fishP, boss: bossP };
   ANIMALS.forEach(a => {
     const inp = document.getElementById('adm-w-' + a.id);
     if (inp) a.weight = Math.max(0.1, Number(inp.value || a.weight));
   });
+  recordAdminLog(`更新麻吉概率：魚群 ${fishP}%、霸主 ${bossP}% 與 8 格權重`);
   saveState();
-  showToast('已更新企鵝的麻吉 8 格各自機率');
+  showToast('已更新魚群／霸主概率與 8 格機率');
 }
 
 function adminSaveCloud() {
   state.cloudUrl = document.getElementById('adm-cloud-url').value.trim();
+  recordAdminLog('更新雲端同步網址設定');
   saveState(true);
   showToast('已儲存同步設定');
 }
