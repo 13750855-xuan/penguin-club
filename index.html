@@ -487,7 +487,7 @@
         </div>
         <div class="brand-sub">
           <span id="user-id-label">ID:100001</span>
-          <span><i class="sync-dot"></i> 全平台即時同步</span>
+          <span id="sync-status-label"><i id="sync-dot" class="sync-dot"></i> Firebase 即時連線中</span>
         </div>
       </div>
     </div>
@@ -714,8 +714,9 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'penguin_club_v11_realtime_100001';
-const SYNC_CHANNEL = 'penguin_club_realtime_sync_v11';
+const DEFAULT_FIREBASE_URL = 'https://penguin-club-c1401-default-rtdb.firebaseio.com';
+const STORAGE_KEY = 'penguin_club_v12_1_100001';
+const SYNC_CHANNEL = 'penguin_club_realtime_sync_v12_1';
 const ADMIN_ONLY_ID = '100001';
 const ADMIN_ONLY_PWD = '8888';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(SYNC_CHANNEL) : null;
@@ -876,7 +877,8 @@ function createDefaultState() {
     id: '100001', password: '', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
     customTitle: '', diamonds: 500000, wealthExp: 10000, charmExp: 10000, totalWin: 12000,
     nobility: '', litGifts: [], relationships: [], backpack: [], currentBets: {}, lastBets: {},
-    specialBets: { fish: 0, boss: 0 }, lastSpecialBets: { fish: 0, boss: 0 }, loggedIn: true
+    specialBets: { fish: 0, boss: 0 }, lastSpecialBets: { fish: 0, boss: 0 }, loggedIn: true,
+    lastSeen: nowTs
   };
   return {
     theme: 'bluepurple',
@@ -923,15 +925,33 @@ function createDefaultState() {
     favoriteRoomIds: ['r_official', 'r_100001'],
     friends: [],
     chats: [
-      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有玩家資料與後台紀錄均全平台同步保存！', ts: nowTs - 7200000 }
+      { id: 'init_1', tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，已連線 Firebase 資料庫即時同步！', ts: nowTs - 7200000 }
     ],
     jackpotBanner: null,
     adminLogs: [],
-    cloudUrl: ''
+    cloudUrl: DEFAULT_FIREBASE_URL
   };
 }
 
 let state = loadState();
+let _cloudBusy = false;
+
+function getFirebaseRootUrl() {
+  const raw = ((state.cloudUrl || DEFAULT_FIREBASE_URL) || '').trim().replace(/\/+$/, '');
+  if (!raw) return '';
+  return raw.endsWith('.json') ? raw.slice(0, -5) : raw;
+}
+
+function updateSyncStatusBadge() {
+  const label = document.getElementById('sync-status-label');
+  const fbRoot = getFirebaseRootUrl();
+  if (!label) return;
+  if (fbRoot) {
+    label.innerHTML = `<i id="sync-dot" class="sync-dot"></i> Firebase 即時連線中`;
+  } else {
+    label.innerHTML = `<i id="sync-dot" class="sync-dot"></i> 本機＋跨分頁同步`;
+  }
+}
 
 function loadState() {
   try {
@@ -940,6 +960,7 @@ function loadState() {
     const parsed = JSON.parse(raw);
     const base = createDefaultState();
     const m = Object.assign(base, parsed);
+    if (!m.cloudUrl) m.cloudUrl = DEFAULT_FIREBASE_URL;
     m.user = Object.assign(cloneSnapshot(base.user), parsed.user || {});
     if (!Array.isArray(m.user.litGifts)) m.user.litGifts = [];
     if (!Array.isArray(m.user.relationships)) m.user.relationships = [];
@@ -1016,6 +1037,8 @@ function syncAllPlayerData() {
   if (!state.loggedInIds.includes(state.user.id)) state.loggedInIds.push(state.user.id);
   if (state.user.id !== ADMIN_ONLY_ID) state.isAdmin = false;
 
+  const nowTs = Date.now();
+  state.user.lastSeen = nowTs;
   const prevVaultEntry = state.playerVault[state.user.id] || state.accounts[state.user.id] || {};
   const fullRecord = {
     id: state.user.id,
@@ -1037,7 +1060,8 @@ function syncAllPlayerData() {
     lastBets: cloneSnapshot(state.lastBets || {}),
     specialBets: cloneSnapshot(state.specialBets || { fish: 0, boss: 0 }),
     lastSpecialBets: cloneSnapshot(state.lastSpecialBets || { fish: 0, boss: 0 }),
-    updatedAt: Date.now()
+    lastSeen: nowTs,
+    updatedAt: nowTs
   };
 
   state.playerVault[state.user.id] = cloneSnapshot(fullRecord);
@@ -1045,17 +1069,170 @@ function syncAllPlayerData() {
   state.playersDirectory[state.user.id] = cloneSnapshot(fullRecord);
 }
 
+async function pushCloudNodes() {
+  const fbRoot = getFirebaseRootUrl();
+  if (!fbRoot || _cloudBusy) return;
+  _cloudBusy = true;
+  try {
+    const uid = encodeURIComponent(state.user.id);
+    const curUserRec = state.playerVault[state.user.id];
+    const sharedPayload = {
+      users: { [state.user.id]: curUserRec },
+      rooms: state.rooms,
+      mics: state.mics,
+      chats: state.chats.slice(-100),
+      jackpotBanner: state.jackpotBanner || null,
+      history: state.history.slice(-50),
+      roundIndex: state.roundIndex,
+      gifts: state.gifts,
+      nobilityTiers: state.nobilityTiers,
+      blindboxes: state.blindboxes,
+      shopItems: state.shopItems,
+      relIcons: state.relIcons,
+      specialGroupProbs: state.specialGroupProbs,
+      adminLogs: (state.adminLogs || []).slice(0, 80)
+    };
+    await fetch(`${fbRoot}/penguin_club_v12.json`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sharedPayload)
+    });
+    if (curUserRec) {
+      await fetch(`${fbRoot}/penguin_club_v12/users/${uid}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(curUserRec)
+      });
+    }
+  } catch (e) {
+  } finally {
+    _cloudBusy = false;
+  }
+}
+
+function mergeRemoteCloudData(remote) {
+  if (!remote || typeof remote !== 'object' || state.isSpinning) return false;
+  let changed = false;
+
+  if (remote.users && typeof remote.users === 'object') {
+    Object.keys(remote.users).forEach(pid => {
+      const rUser = remote.users[pid];
+      if (!rUser || !rUser.id) return;
+      if (pid === state.user.id) {
+        const localUpdated = Number((state.playerVault[pid] && state.playerVault[pid].updatedAt) || 0);
+        const remoteUpdated = Number(rUser.updatedAt || 0);
+        if (remoteUpdated > localUpdated) {
+          state.user = Object.assign(cloneSnapshot(createDefaultState().user), cloneSnapshot(rUser));
+          state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
+          changed = true;
+        }
+      } else {
+        const prev = state.playerVault[pid];
+        if (!prev || Number(rUser.updatedAt || 0) >= Number(prev.updatedAt || 0)) {
+          state.playerVault[pid] = cloneSnapshot(rUser);
+          state.accounts[pid] = cloneSnapshot(rUser);
+          state.playersDirectory[pid] = cloneSnapshot(rUser);
+          changed = true;
+        }
+      }
+    });
+  }
+
+  if (Array.isArray(remote.rooms) && remote.rooms.length) {
+    const strR = JSON.stringify(remote.rooms);
+    if (JSON.stringify(state.rooms) !== strR) {
+      state.rooms = cloneSnapshot(remote.rooms);
+      changed = true;
+    }
+  }
+
+  if (Array.isArray(remote.mics) && remote.mics.length === 8) {
+    const mergedMics = remote.mics.map(m => {
+      const copy = Object.assign({}, m);
+      copy.isSelf = copy.id === state.user.id;
+      return copy;
+    });
+    if (JSON.stringify(state.mics) !== JSON.stringify(mergedMics)) {
+      state.mics = mergedMics;
+      changed = true;
+    }
+  }
+
+  if (Array.isArray(remote.chats) && remote.chats.length) {
+    const map = new Map();
+    state.chats.forEach(c => map.set(c.id || `${c.ts}_${c.nick}_${c.text}`, c));
+    remote.chats.forEach(c => map.set(c.id || `${c.ts}_${c.nick}_${c.text}`, c));
+    const combined = Array.from(map.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0)).slice(-100);
+    if (JSON.stringify(combined) !== JSON.stringify(state.chats)) {
+      state.chats = combined;
+      changed = true;
+    }
+  }
+
+  if (remote.jackpotBanner && (!state.jackpotBanner || Number(remote.jackpotBanner.ts || 0) > Number(state.jackpotBanner.ts || 0))) {
+    state.jackpotBanner = cloneSnapshot(remote.jackpotBanner);
+    changed = true;
+  }
+
+  if (Array.isArray(remote.history) && remote.history.length) {
+    if (JSON.stringify(remote.history) !== JSON.stringify(state.history)) {
+      state.history = cloneSnapshot(remote.history);
+      changed = true;
+    }
+  }
+  if (typeof remote.roundIndex === 'number' && remote.roundIndex > state.roundIndex) {
+    state.roundIndex = remote.roundIndex;
+    changed = true;
+  }
+
+  if (Array.isArray(remote.gifts) && remote.gifts.length && JSON.stringify(remote.gifts) !== JSON.stringify(state.gifts)) {
+    state.gifts = cloneSnapshot(remote.gifts); changed = true;
+  }
+  if (Array.isArray(remote.nobilityTiers) && remote.nobilityTiers.length && JSON.stringify(remote.nobilityTiers) !== JSON.stringify(state.nobilityTiers)) {
+    state.nobilityTiers = cloneSnapshot(remote.nobilityTiers); changed = true;
+  }
+  if (Array.isArray(remote.blindboxes) && remote.blindboxes.length && JSON.stringify(remote.blindboxes) !== JSON.stringify(state.blindboxes)) {
+    state.blindboxes = cloneSnapshot(remote.blindboxes); changed = true;
+  }
+  if (Array.isArray(remote.shopItems) && remote.shopItems.length && JSON.stringify(remote.shopItems) !== JSON.stringify(state.shopItems)) {
+    state.shopItems = cloneSnapshot(remote.shopItems); changed = true;
+  }
+  if (remote.relIcons && JSON.stringify(remote.relIcons) !== JSON.stringify(state.relIcons)) {
+    state.relIcons = cloneSnapshot(remote.relIcons); changed = true;
+  }
+  if (remote.specialGroupProbs && JSON.stringify(remote.specialGroupProbs) !== JSON.stringify(state.specialGroupProbs)) {
+    state.specialGroupProbs = cloneSnapshot(remote.specialGroupProbs); changed = true;
+  }
+  if (Array.isArray(remote.adminLogs) && JSON.stringify(remote.adminLogs) !== JSON.stringify(state.adminLogs)) {
+    state.adminLogs = cloneSnapshot(remote.adminLogs); changed = true;
+  }
+
+  if (changed) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderAll();
+  }
+  return changed;
+}
+
+async function pullCloudOnce() {
+  const fbRoot = getFirebaseRootUrl();
+  if (!fbRoot || _cloudBusy) return;
+  try {
+    const res = await fetch(`${fbRoot}/penguin_club_v12.json`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data) mergeRemoteCloudData(data);
+  } catch (e) {}
+}
+
 function saveState(pushCloud = true) {
   try {
     syncAllPlayerData();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    updateSyncStatusBadge();
     if (bc) bc.postMessage({ type: 'SYNC_STATE', payload: state });
-    if (pushCloud && state.cloudUrl) {
-      fetch(state.cloudUrl.replace(/\/$/, '') + '/penguin_club.json', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(state)
-      }).catch(() => {});
+    if (pushCloud && getFirebaseRootUrl()) {
+      pushCloudNodes();
     }
   } catch (e) {}
 }
@@ -1066,7 +1243,9 @@ if (bc) {
       const incoming = ev.data.payload;
       if (!state.isSpinning) {
         const keepId = state.user.id;
+        const keepCloudUrl = state.cloudUrl || DEFAULT_FIREBASE_URL;
         state = Object.assign({}, state, incoming);
+        if (!state.cloudUrl) state.cloudUrl = keepCloudUrl;
         if (state.playerVault && state.playerVault[keepId]) {
           state.user = Object.assign(cloneSnapshot(createDefaultState().user), cloneSnapshot(state.playerVault[keepId]));
           state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
@@ -1078,9 +1257,38 @@ if (bc) {
   };
 }
 
+setInterval(() => {
+  if (getFirebaseRootUrl()) {
+    pullCloudOnce();
+  }
+}, 2000);
+
+setInterval(() => {
+  syncAllPlayerData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (getFirebaseRootUrl()) {
+    const uid = encodeURIComponent(state.user.id);
+    fetch(`${getFirebaseRootUrl()}/penguin_club_v12/users/${uid}/lastSeen.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Date.now())
+    }).catch(() => {});
+  }
+}, 10000);
+
+window.addEventListener('pagehide', () => {
+  state.mics.forEach(m => {
+    if (m.isSelf || m.id === state.user.id) {
+      m.id = ''; m.nick = ''; m.avatar = ''; m.avatarImg = ''; m.speaking = false; m.isSelf = false;
+    }
+  });
+  saveState(true);
+});
+
 function enterGameFromSplash() {
   document.getElementById('splash-screen').classList.add('hide');
   triggerWelcomeBanner();
+  if (getFirebaseRootUrl()) pullCloudOnce();
 }
 
 function formatNum(n) {
@@ -2361,7 +2569,7 @@ function confirmAddFriend() {
   const id = (document.getElementById('add-fid-id').value.trim() || String(Math.floor(100000 + Math.random() * 899999))).slice(0, 8);
   const nick = document.getElementById('add-fid-nick').value.trim() || ('玩家' + id);
   if (!state.playerVault[id]) {
-    const rec = { id, password: '', nick, avatar: '🐧', avatarImg: '', coverImg: '', customTitle: '', diamonds: 100000, wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [], backpack: [] };
+    const rec = { id, password: '', nick, avatar: '🐧', avatarImg: '', coverImg: '', customTitle: '', diamonds: 100000, wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [], backpack: [], lastSeen: Date.now(), updatedAt: Date.now() };
     state.playerVault[id] = cloneSnapshot(rec);
     state.playersDirectory[id] = cloneSnapshot(rec);
     state.accounts[id] = cloneSnapshot(rec);
@@ -2381,7 +2589,8 @@ function applyAccountSnapshot(id, pwd, isNew) {
     const saved = state.playerVault[id] || state.accounts[id] || {};
     state.user = Object.assign(cloneSnapshot(base), cloneSnapshot(saved), {
       id,
-      password: pwd !== undefined ? pwd : (saved.password || '')
+      password: pwd !== undefined ? pwd : (saved.password || ''),
+      lastSeen: Date.now()
     });
     state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
     state.currentBets = cloneSnapshot(state.user.currentBets || {});
@@ -2402,6 +2611,7 @@ function applyAccountSnapshot(id, pwd, isNew) {
     fresh.lastBets = {};
     fresh.specialBets = { fish: 0, boss: 0 };
     fresh.lastSpecialBets = { fish: 0, boss: 0 };
+    fresh.lastSeen = Date.now();
     state.user = fresh;
     state.backpack = [];
     state.currentBets = {};
@@ -2695,9 +2905,9 @@ function openAdminPanel() {
     <div style="margin-bottom:6px;">${animalInputs}</div>
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveAnimalWeights()">儲存魚群／霸主概率與 8 格機率</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">8. 雲端同步網址（選填）</div>
-    <input id="adm-cloud-url" class="field-input" value="${state.cloudUrl || ''}" placeholder="https://xxx-default-rtdb.firebaseio.com" />
-    <button class="primary-btn" onclick="adminSaveCloud()">儲存同步設定</button>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">8. Firebase Realtime Database 同步網址</div>
+    <input id="adm-cloud-url" class="field-input" value="${state.cloudUrl || DEFAULT_FIREBASE_URL}" placeholder="https://penguin-club-c1401-default-rtdb.firebaseio.com" />
+    <button class="primary-btn" onclick="adminSaveCloud()">儲存並立即連線同步</button>
   `);
   renderAdminBoxProbRows();
 }
@@ -2781,7 +2991,10 @@ function adminSendDiamondsToId() {
     renderProfile();
   } else {
     [state.playerVault, state.accounts, state.playersDirectory].forEach(store => {
-      if (store[targetId]) store[targetId].diamonds = Number(store[targetId].diamonds || 0) + amt;
+      if (store[targetId]) {
+        store[targetId].diamonds = Number(store[targetId].diamonds || 0) + amt;
+        store[targetId].updatedAt = Date.now();
+      }
     });
   }
   recordAdminLog(`發放 ${formatNum(amt)} 鑽石給 ID:${targetId}`);
@@ -2869,10 +3082,12 @@ function adminSaveAnimalWeights() {
 }
 
 function adminSaveCloud() {
-  state.cloudUrl = document.getElementById('adm-cloud-url').value.trim();
-  recordAdminLog('更新雲端同步網址設定');
+  state.cloudUrl = (document.getElementById('adm-cloud-url').value || DEFAULT_FIREBASE_URL).trim();
+  recordAdminLog('更新 Firebase Realtime Database 同步網址');
+  updateSyncStatusBadge();
   saveState(true);
-  showToast('已儲存同步設定');
+  pullCloudOnce();
+  showToast(getFirebaseRootUrl() ? '已儲存並連線至 Firebase 即時同步' : '已清除雲端網址，使用本機與跨分頁同步');
 }
 
 function openModal(title, html) {
@@ -2888,6 +3103,7 @@ function closeModal() {
 function renderAll() {
   syncAllPlayerData();
   syncUserToLeaderboard();
+  updateSyncStatusBadge();
   applyTheme();
   renderJackpotMarquee();
   renderProfile();
@@ -2908,6 +3124,9 @@ function renderAll() {
 
 document.getElementById('splash-screen').classList.remove('hide');
 renderAll();
+if (getFirebaseRootUrl()) {
+  pullCloudOnce();
+}
 </script>
 </body>
 </html>
