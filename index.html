@@ -15,12 +15,12 @@
   :root {
     --bg-outer: radial-gradient(circle at 18% 12%, #2e2a72 0%, #141233 58%, #070614 100%);
     --bg-shell: linear-gradient(180deg, #1b1846 0%, #110f30 45%, #0b0a22 100%);
-    --border-shell: rgba(139, 92, 246, 0.45);
-    --glass-bg: rgba(28, 24, 68, 0.82);
-    --glass-elevated: rgba(40, 34, 92, 0.94);
+    --border-shell: rgba(139, 92, 246, 0.35);
+    --glass-bg: rgba(28, 24, 68, 0.84);
+    --glass-elevated: rgba(40, 34, 92, 0.96);
     --glass-border: rgba(255, 255, 255, 0.12);
     --glass-border-strong: rgba(167, 139, 250, 0.36);
-    --card-sub: rgba(15, 13, 40, 0.7);
+    --card-sub: rgba(15, 13, 40, 0.72);
     --text-main: #f8fafc;
     --text-sub: #cbd5e1;
     --text-muted: #94a3b8;
@@ -31,18 +31,18 @@
     --gold-grad: linear-gradient(135deg, #fde68a, #f59e0b);
     --gold-soft: rgba(251, 191, 36, 0.16);
     --nav-bg: rgba(14, 12, 36, 0.96);
-    --chat-bg: rgba(15, 13, 40, 0.75);
+    --chat-bg: rgba(15, 13, 40, 0.78);
   }
 
   body.theme-blackgold {
     --bg-outer: radial-gradient(circle at 18% 12%, #292214 0%, #110e09 58%, #050403 100%);
     --bg-shell: linear-gradient(180deg, #1c1811 0%, #120f0a 45%, #090805 100%);
-    --border-shell: rgba(245, 158, 11, 0.45);
-    --glass-bg: rgba(32, 26, 17, 0.85);
-    --glass-elevated: rgba(46, 37, 23, 0.94);
+    --border-shell: rgba(245, 158, 11, 0.35);
+    --glass-bg: rgba(32, 26, 17, 0.86);
+    --glass-elevated: rgba(46, 37, 23, 0.96);
     --glass-border: rgba(251, 191, 36, 0.16);
     --glass-border-strong: rgba(245, 158, 11, 0.42);
-    --card-sub: rgba(18, 14, 9, 0.76);
+    --card-sub: rgba(18, 14, 9, 0.78);
     --text-main: #fef3c7;
     --text-sub: #fde68a;
     --text-muted: #a8a29e;
@@ -53,7 +53,7 @@
     --gold-grad: linear-gradient(135deg, #fef08a, #eab308);
     --gold-soft: rgba(245, 158, 11, 0.18);
     --nav-bg: rgba(15, 12, 8, 0.96);
-    --chat-bg: rgba(18, 14, 9, 0.8);
+    --chat-bg: rgba(18, 14, 9, 0.82);
   }
 
   html, body {
@@ -63,18 +63,15 @@
     overflow: hidden;
   }
 
+  /* 2. 遊戲畫面滿版 */
   .app-shell {
-    position: relative; width: 100%; max-width: 460px; height: 100dvh; margin: 0 auto;
+    position: relative; width: 100vw; max-width: 100%; height: 100dvh; margin: 0 auto;
     background: var(--bg-shell);
-    border-left: 1px solid var(--border-shell);
-    border-right: 1px solid var(--border-shell);
     display: flex; flex-direction: column; overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
   }
 
-  /* 1. 每次打開都會出現的歡迎來到企鵝畫面 */
   #splash-screen {
-    position: absolute; inset: 0; z-index: 120;
+    position: fixed; inset: 0; z-index: 140;
     background: radial-gradient(circle at 50% 35%, #3730a3 0%, #141233 60%, #070614 100%);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 24px; text-align: center; transition: opacity 0.35s ease, visibility 0.35s ease;
@@ -96,7 +93,7 @@
   .top-bar {
     flex-shrink: 0; padding: calc(env(safe-area-inset-top, 10px) + 8px) 14px 10px;
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    background: rgba(10, 9, 28, 0.58); border-bottom: 1px solid var(--glass-border);
+    background: rgba(10, 9, 28, 0.62); border-bottom: 1px solid var(--glass-border);
     backdrop-filter: blur(12px); z-index: 20;
   }
   .brand-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
@@ -124,7 +121,7 @@
 
   .main-scroll {
     flex: 1; overflow-y: auto; overflow-x: hidden;
-    padding: 10px 12px 92px; -webkit-overflow-scrolling: touch;
+    padding: 10px 14px 86px; -webkit-overflow-scrolling: touch;
   }
   .main-scroll::-webkit-scrollbar { width: 0; display: none; }
 
@@ -133,7 +130,7 @@
 
   .glass-card {
     background: var(--glass-bg); border: 1px solid var(--glass-border-strong);
-    border-radius: 16px; padding: 11px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    border-radius: 16px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
   }
 
   .profile-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -143,12 +140,12 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 24px; overflow: hidden; cursor: pointer;
   }
-  .avatar-wrap img, .mic-avatar img, .thumb-img, .shield-img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-wrap img, .mic-avatar img, .thumb-img, .shield-img, .cover-img { width: 100%; height: 100%; object-fit: cover; }
   .profile-mid { flex: 1; min-width: 0; }
   .name-line { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-  .user-nick { font-size: 14px; font-weight: 800; max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+  .user-nick { font-size: 14px; font-weight: 800; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
   .mini-chip {
-    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
     border: 1px solid var(--glass-border); background: var(--glass-elevated);
     color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 3px;
   }
@@ -174,7 +171,7 @@
   }
   .mic-slot.occupied { border-color: var(--accent); background: rgba(139, 92, 246, 0.14); }
   .mic-avatar {
-    width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 4px;
+    width: 38px; height: 38px; border-radius: 50%; margin: 0 auto 4px;
     background: rgba(255,255,255,0.06); border: 1.5px solid var(--glass-border-strong);
     display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden;
   }
@@ -189,20 +186,21 @@
   }
   .welcome-banner.show { display: flex; }
 
-  /* 2. 完整聊天室（含過往幾年幾月幾日幾點幾分時間戳） */
   .chat-box {
-    height: 120px; overflow-y: auto; background: var(--chat-bg);
+    height: 125px; overflow-y: auto; background: var(--chat-bg);
     border: 1px solid var(--glass-border); border-radius: 11px;
     padding: 7px 9px; display: flex; flex-direction: column; gap: 6px; font-size: 11px;
   }
-  .chat-msg-item {
-    background: rgba(0, 0, 0, 0.22); border-radius: 8px; padding: 5px 7px;
-  }
+  .chat-msg-item { background: rgba(0, 0, 0, 0.24); border-radius: 8px; padding: 6px 8px; }
   .chat-time { font-size: 9px; color: var(--text-muted); margin-bottom: 2px; }
-  .chat-msg { line-height: 1.35; word-break: break-all; }
+  .chat-msg { line-height: 1.4; word-break: break-all; }
   .chat-tag {
     display: inline-block; font-size: 9px; font-weight: 800; padding: 1px 5px;
     border-radius: 4px; background: var(--gold-soft); color: var(--gold-hi); margin-right: 4px;
+  }
+  .chat-confirm-btn {
+    margin-top: 5px; padding: 3px 9px; border-radius: 999px; border: none;
+    background: var(--gold-grad); color: #1f1600; font-size: 10px; font-weight: 900; cursor: pointer;
   }
   .chat-input-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
   .mic-toggle-btn {
@@ -220,7 +218,6 @@
     background: var(--accent-grad); color: #fff; font-size: 11px; font-weight: 800; cursor: pointer; flex-shrink: 0;
   }
 
-  /* 選單模式（企鵝的麻吉 & 盲盒皆為選單展開） */
   .launcher-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .sub-tab-row { display: flex; gap: 6px; margin-bottom: 8px; }
   .sub-tab-btn {
@@ -237,7 +234,7 @@
   .wheel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
   .animal-cell {
     background: var(--card-sub); border: 1.5px solid var(--glass-border);
-    border-radius: 12px; padding: 6px 4px; text-align: center; cursor: pointer; position: relative;
+    border-radius: 12px; padding: 7px 4px; text-align: center; cursor: pointer; position: relative;
   }
   .animal-cell.selected { border-color: var(--gold-hi); background: rgba(251, 191, 36, 0.14); }
   .animal-cell.cursor { border-color: #38bdf8; box-shadow: 0 0 14px rgba(56, 189, 248, 0.85); transform: scale(1.03); }
@@ -264,15 +261,15 @@
   .history-icons { display: flex; align-items: center; gap: 4px; overflow-x: auto; flex: 1; }
   .hist-badge { padding: 2px 5px; border-radius: 6px; background: rgba(255,255,255,0.06); white-space: nowrap; font-weight: 700; }
 
-  .box-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .box-card {
+  .box-grid, .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .box-card, .shop-card {
     background: var(--card-sub); border: 1px solid var(--glass-border-strong);
     border-radius: 14px; padding: 10px; text-align: center;
     display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
   }
-  .box-icon { font-size: 30px; }
-  .box-title { font-size: 13px; font-weight: 800; }
-  .box-price { font-size: 11px; font-weight: 800; color: var(--gold-hi); }
+  .box-icon, .shop-icon { font-size: 30px; width: 42px; height: 42px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 10px; overflow: hidden; }
+  .box-title, .shop-title { font-size: 13px; font-weight: 800; }
+  .box-price, .shop-price { font-size: 11px; font-weight: 800; color: var(--gold-hi); }
   .box-btns { display: flex; gap: 5px; }
   .box-open-btn {
     flex: 1; padding: 6px 4px; border-radius: 9px; border: none;
@@ -310,32 +307,69 @@
     background: var(--card-sub); border: 1px solid var(--glass-border);
     border-radius: 12px; padding: 9px 10px;
   }
-  .section-title { font-size: 13px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .section-title { font-size: 13px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 
-  /* 6 格底部導覽（含個人主頁） */
+  /* 個人主頁封面照與親密關係牆（10. 五種底色） */
+  .hp-cover {
+    width: 100%; height: 116px; border-radius: 14px; overflow: hidden;
+    background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(139,92,246,0.2));
+    border: 1px solid var(--glass-border-strong); position: relative; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-top: 6px; }
+  .rel-card {
+    border-radius: 12px; padding: 8px 10px; color: #0f172a; font-weight: 800; font-size: 11px;
+    display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.35);
+  }
+  .rel-bg-lover { background: #fbcfe8; }     /* 戀人：粉色底 */
+  .rel-bg-bestie { background: #ddd6fe; }    /* 摯友：紫色底 */
+  .rel-bg-close { background: #fed7aa; }     /* 閨蜜：橘色底 */
+  .rel-bg-parent { background: #fef08a; }    /* 親子：黃色底 */
+  .rel-bg-mentor { background: #bbf7d0; }    /* 師徒：綠色底 */
+  .rel-icon-box { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden; flex-shrink: 0; }
+
+  /* 3. 私人聊天室全螢幕畫面 */
+  #fullscreen-pm-overlay {
+    position: fixed; inset: 0; z-index: 110; display: none; flex-direction: column;
+    background: var(--bg-shell);
+  }
+  #fullscreen-pm-overlay.show { display: flex; }
+  .full-pm-head {
+    flex-shrink: 0; padding: calc(env(safe-area-inset-top, 10px) + 8px) 14px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10, 9, 28, 0.72); border-bottom: 1px solid var(--glass-border);
+  }
+  .full-pm-body {
+    flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .full-pm-foot {
+    flex-shrink: 0; padding: 8px 12px calc(env(safe-area-inset-bottom, 10px) + 8px);
+    display: flex; gap: 8px; background: var(--nav-bg); border-top: 1px solid var(--glass-border);
+  }
+
   .bottom-nav {
     position: absolute; bottom: 0; left: 0; right: 0;
     padding: 6px 6px calc(env(safe-area-inset-bottom, 8px) + 6px);
     background: var(--nav-bg); border-top: 1px solid var(--glass-border);
-    display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; z-index: 30;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; z-index: 30;
   }
   .nav-btn {
     border: none; background: transparent; color: var(--text-muted);
-    border-radius: 12px; padding: 6px 2px;
+    border-radius: 10px; padding: 6px 1px;
     display: flex; flex-direction: column; align-items: center; gap: 2px;
-    font-size: 10px; font-weight: 700; cursor: pointer;
+    font-size: 9px; font-weight: 700; cursor: pointer;
   }
   .nav-btn.active { background: var(--accent-grad); color: #fff; }
-  .nav-ico { font-size: 16px; line-height: 1.1; }
+  .nav-ico { font-size: 15px; line-height: 1.1; }
 
   .modal-mask {
-    position: absolute; inset: 0; background: rgba(4, 4, 14, 0.8);
+    position: fixed; inset: 0; background: rgba(4, 4, 14, 0.82);
     backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center;
-    padding: 16px; z-index: 60;
+    padding: 16px; z-index: 125;
   }
   .modal-mask.show { display: flex; }
   .modal-card {
-    width: 100%; max-width: 400px; max-height: 85dvh; overflow-y: auto;
+    width: 100%; max-width: 420px; max-height: 86dvh; overflow-y: auto;
     background: var(--glass-elevated); border: 1px solid var(--glass-border-strong);
     border-radius: 18px; padding: 14px; color: var(--text-main);
   }
@@ -343,10 +377,10 @@
   .close-x { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 800; }
 
   .toast {
-    position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.95); border: 1px solid var(--gold-hi);
+    position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.96); border: 1px solid var(--gold-hi);
     color: #fef08a; padding: 7px 14px; border-radius: 999px;
-    font-size: 11px; font-weight: 800; z-index: 95; display: none; white-space: nowrap;
+    font-size: 11px; font-weight: 800; z-index: 150; display: none; white-space: nowrap;
   }
   .toast.show { display: block; }
 
@@ -369,7 +403,7 @@
 <div class="app-shell">
   <div id="toast" class="toast"></div>
 
-  <!-- 1. 每次開啟都會出現的歡迎來到企鵝畫面 -->
+  <!-- 每次打開都顯示的歡迎來到企鵝畫面 -->
   <div id="splash-screen">
     <div class="splash-penguin">🐧</div>
     <div class="splash-title">歡迎來到企鵝</div>
@@ -388,7 +422,7 @@
         </div>
         <div class="brand-sub">
           <span id="user-id-label">ID:100001</span>
-          <span><i class="sync-dot"></i> 即時保存</span>
+          <span><i class="sync-dot"></i> 永久保存</span>
         </div>
       </div>
     </div>
@@ -413,7 +447,7 @@
             <div class="lvl-line">
               <button class="mini-chip gold" id="my-nobility-chip" onclick="switchTab('nobility')">👑 開通爵位</button>
               <span class="lvl-badge" id="wealth-lvl-badge" onclick="openLevelProgressModal('wealth')">💎 Lv.1</span>
-              <span class="lvl-badge" id="charm-lvl-badge" onclick="openLevelProgressModal('charm')">💖 Lv.1</span>
+              <span class="lvl-badge" id="charm-lvl-badge" onclick="openLevelProgressModal('charm')">🌹 Lv.1</span>
             </div>
           </div>
           <div class="diamond-box">
@@ -443,7 +477,7 @@
         </div>
       </div>
 
-      <!-- 13. 盲盒選單（非底部導覽列，點選進入才展開） -->
+      <!-- 盲盒選單 -->
       <div class="glass-card" id="box-launcher-card">
         <div class="launcher-bar">
           <div>
@@ -466,7 +500,7 @@
         <div class="box-grid" id="blindbox-grid"></div>
       </div>
 
-      <!-- 企鵝的麻吉選單（預設不直接展開轉盤，點選進入才開啟轉盤與全服榜單） -->
+      <!-- 企鵝的麻吉選單 -->
       <div class="glass-card" id="maji-launcher-card">
         <div class="launcher-bar">
           <div>
@@ -517,23 +551,35 @@
       </div>
     </section>
 
-    <!-- 2. 個人主頁畫面（3 & 9） -->
+    <!-- 個人主頁（封面照、等級/積分、已點亮禮物、親密關係牆） -->
     <section id="panel-homepage" class="tab-panel">
       <div class="glass-card" id="homepage-card-container"></div>
     </section>
 
-    <!-- 3. 私人房與聊天室 -->
+    <!-- 商城（9 & 11 & 13） -->
+    <section id="panel-shop" class="tab-panel">
+      <div class="glass-card">
+        <div class="section-title">
+          <span>🛍️ 企鵝星河商城（購買直接入背包）</span>
+          <button class="mini-chip" onclick="openBackpackModal()">🎒 背包 (<span id="bag-count-badge-shop">0</span>)</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">購買商品直接放入背包；若為親密關係戒指，可從背包向好友送禮並邀請綁定關係。</div>
+        <div class="shop-grid" id="shop-grid"></div>
+      </div>
+    </section>
+
+    <!-- 語音房（6 & 7：每人專屬語音房、密碼鎖房、非官方房可改名） -->
     <section id="panel-rooms" class="tab-panel">
       <div class="glass-card">
         <div class="section-title">
-          <span>🏠 私人語音與聊天房</span>
+          <span>🎙️ 語音房列表（支援密碼鎖房與改名）</span>
           <button class="mini-chip gold" onclick="createPrivateRoom()">＋ 建立房間</button>
         </div>
         <div id="room-list" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
     </section>
 
-    <!-- 4. 好友與私人聊天室 -->
+    <!-- 好友與全螢幕私人聊天室 -->
     <section id="panel-friends" class="tab-panel">
       <div class="glass-card">
         <div class="section-title">
@@ -544,18 +590,16 @@
       </div>
     </section>
 
-    <!-- 5. 禮物牆 -->
+    <!-- 禮物牆 -->
     <section id="panel-gifts" class="tab-panel">
       <div class="glass-card">
-        <div class="section-title">
-          <span>🎁 夢幻海洋禮物牆</span>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">點擊禮物立即送出並點亮主頁禮物圖標，同步增加財富與魅力積分</div>
+        <div class="section-title"><span>🎁 夢幻海洋禮物牆</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">點擊禮物立即送出並點亮主頁禮物圖標，同步增加財富與🌹魅力積分</div>
         <div class="gift-grid" id="gift-grid"></div>
       </div>
     </section>
 
-    <!-- 6. 爵位 -->
+    <!-- 爵位 -->
     <section id="panel-nobility" class="tab-panel">
       <div class="glass-card">
         <div class="section-title"><span>👑 六階榮耀盾牌爵位</span></div>
@@ -564,12 +608,27 @@
     </section>
   </main>
 
+  <!-- 3. 點開好友私人聊天室時的全螢幕畫面 -->
+  <div id="fullscreen-pm-overlay">
+    <div class="full-pm-head">
+      <button class="pill-btn" onclick="closeFullscreenPm()">← 返回</button>
+      <div id="full-pm-title" style="font-size:14px;font-weight:900;">私人聊天室</div>
+      <span style="width:48px;"></span>
+    </div>
+    <div id="full-pm-body" class="full-pm-body"></div>
+    <div class="full-pm-foot">
+      <input id="full-pm-inp" class="chat-input" placeholder="輸入私人訊息..." onkeydown="if(event.key==='Enter')sendFullscreenPm()" />
+      <button class="send-btn" onclick="sendFullscreenPm()">發送</button>
+    </div>
+  </div>
+
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="hall" onclick="switchTab('hall')"><span class="nav-ico">🌊</span>大廳</button>
     <button class="nav-btn" data-tab="homepage" onclick="openPlayerHomepage(state.user.id)"><span class="nav-ico">🪪</span>主頁</button>
-    <button class="nav-btn" data-tab="rooms" onclick="switchTab('rooms')"><span class="nav-ico">🏠</span>私人房</button>
+    <button class="nav-btn" data-tab="shop" onclick="switchTab('shop')"><span class="nav-ico">🛍️</span>商城</button>
+    <button class="nav-btn" data-tab="rooms" onclick="switchTab('rooms')"><span class="nav-ico">🎙️</span>語音房</button>
     <button class="nav-btn" data-tab="friends" onclick="switchTab('friends')"><span class="nav-ico">👥</span>好友</button>
-    <button class="nav-btn" data-tab="gifts" onclick="switchTab('gifts')"><span class="nav-ico">🎁</span>禮物牆</button>
+    <button class="nav-btn" data-tab="gifts" onclick="switchTab('gifts')"><span class="nav-ico">🎁</span>禮物</button>
     <button class="nav-btn" data-tab="nobility" onclick="switchTab('nobility')"><span class="nav-ico">👑</span>爵位</button>
   </nav>
 
@@ -585,8 +644,8 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'penguin_club_v5_all13';
-const SYNC_CHANNEL = 'penguin_club_realtime_sync_v5';
+const STORAGE_KEY = 'penguin_club_v6_full_persist';
+const SYNC_CHANNEL = 'penguin_club_realtime_sync_v6';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(SYNC_CHANNEL) : null;
 
 const ANIMALS = [
@@ -664,6 +723,24 @@ const DEFAULT_BLINDBOXES = [
   }
 ];
 
+/* 10 & 12. 五種親密關係與預設圖示 */
+const RELATIONSHIP_TYPES = [
+  { key: 'lover', label: '戀人', cssClass: 'rel-bg-lover', defaultIcon: '💍' },
+  { key: 'bestie', label: '摯友', cssClass: 'rel-bg-bestie', defaultIcon: '💜' },
+  { key: 'close', label: '閨蜜', cssClass: 'rel-bg-close', defaultIcon: '🧡' },
+  { key: 'parent', label: '親子', cssClass: 'rel-bg-parent', defaultIcon: '🐣' },
+  { key: 'mentor', label: '師徒', cssClass: 'rel-bg-mentor', defaultIcon: '🌿' }
+];
+
+const DEFAULT_SHOP_ITEMS = [
+  { id: 'sh1', name: '戀人誓約戒', icon: '💍', img: '', price: 5200, relType: 'lover' },
+  { id: 'sh2', name: '摯友星契戒', icon: '💜', img: '', price: 3000, relType: 'bestie' },
+  { id: 'sh3', name: '閨蜜珊瑚戒', icon: '🧡', img: '', price: 2500, relType: 'close' },
+  { id: 'sh4', name: '親子暖陽戒', icon: '🐣', img: '', price: 2000, relType: 'parent' },
+  { id: 'sh5', name: '師徒青嵐戒', icon: '🌿', img: '', price: 2000, relType: 'mentor' },
+  { id: 'sh6', name: '極光企鵝玩偶', icon: '🐧', img: '', price: 1500, relType: '' }
+];
+
 const CHAT_BG_THEMES = [
   { id: 'deep-ocean', name: '深海星河', bg: 'rgba(15, 13, 40, 0.78)' },
   { id: 'aurora-teal', name: '極光青藍', bg: 'linear-gradient(135deg, rgba(13, 148, 136, 0.35), rgba(30, 58, 138, 0.58))' },
@@ -673,26 +750,15 @@ const CHAT_BG_THEMES = [
 
 const LEVEL_TIER_COLORS = ['#e2e8f0', '#38bdf8', '#34d399', '#facc15', '#c084fc', '#fb7185'];
 
-/* 5. 財富與魅力等級門檻表（最高 666 級） */
 const WAN = 10000;
 const YI = 100000000;
 const LEVEL_THRESHOLDS = (function buildLevelThresholds() {
-  // 索引 0 為 Lv.0(未達1級), 索引 1 為 Lv.1 (1萬分) ... 索引 666 為 Lv.666
   const t = new Array(667).fill(0);
   const fixed1to10 = {
-    1: 1 * WAN,
-    2: 5 * WAN,
-    3: 10 * WAN,
-    4: 20 * WAN,
-    5: 40 * WAN,
-    6: 66 * WAN,
-    7: 80 * WAN,
-    8: 99 * WAN,
-    9: 120 * WAN,
-    10: 150 * WAN
+    1: 1 * WAN, 2: 5 * WAN, 3: 10 * WAN, 4: 20 * WAN, 5: 40 * WAN,
+    6: 66 * WAN, 7: 80 * WAN, 8: 99 * WAN, 9: 120 * WAN, 10: 150 * WAN
   };
   for (let lv = 1; lv <= 10; lv++) t[lv] = fixed1to10[lv];
-
   let cur = t[10];
   for (let lv = 11; lv <= 20; lv++) { cur += 25 * WAN; t[lv] = cur; }
   for (let lv = 21; lv <= 40; lv++) { cur += 50 * WAN; t[lv] = cur; }
@@ -738,41 +804,45 @@ function createDefaultState() {
     majiExpanded: false,
     majiSubTab: 'wheel',
     viewingPlayerId: '100001',
+    activePmFriendIdx: null,
     user: {
       id: '100001',
       password: '',
       nick: '企鵝小萌主',
       avatar: '🐧',
       avatarImg: '',
+      coverImg: '',
       customTitle: '',
       diamonds: 500000,
       wealthExp: 10000,
       charmExp: 10000,
       totalWin: 12000,
       nobility: '',
-      litGifts: []
+      litGifts: [],
+      relationships: []
     },
     accounts: {
       '100001': {
-        id: '100001',
-        password: '',
-        nick: '企鵝小萌主',
-        avatar: '🐧',
-        avatarImg: '',
-        customTitle: '',
-        diamonds: 500000,
-        wealthExp: 10000,
-        charmExp: 10000,
-        totalWin: 12000,
-        nobility: '',
-        litGifts: []
+        id: '100001', password: '', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
+        customTitle: '', diamonds: 500000, wealthExp: 10000, charmExp: 10000, totalWin: 12000,
+        nobility: '', litGifts: [], relationships: []
       }
     },
-    playerBalances: { '100001': 500000 },
     playersDirectory: {
-      '100001': { id: '100001', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', customTitle: '', wealthExp: 10000, charmExp: 10000, totalWin: 12000, nobility: '', litGifts: [] },
-      '100002': { id: '100002', nick: '小八', avatar: '🐱', avatarImg: '', customTitle: '吉伊星河好友', wealthExp: 250000, charmExp: 180000, totalWin: 680000, nobility: 'knight', litGifts: ['g1', 'g2', 'g4'] },
-      '100003': { id: '100003', nick: '星河海豚', avatar: '🐬', avatarImg: '', customTitle: '深海浪花旅人', wealthExp: 120000, charmExp: 90000, totalWin: 420000, nobility: '', litGifts: ['g1', 'g3'] }
+      '100001': {
+        id: '100001', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
+        customTitle: '', wealthExp: 10000, charmExp: 10000, totalWin: 12000, nobility: '', litGifts: [], relationships: []
+      },
+      '100002': {
+        id: '100002', nick: '小八', avatar: '🐱', avatarImg: '', coverImg: '',
+        customTitle: '吉伊星河好友', wealthExp: 250000, charmExp: 180000, totalWin: 680000,
+        nobility: 'knight', litGifts: ['g1', 'g2', 'g4'], relationships: []
+      },
+      '100003': {
+        id: '100003', nick: '星河海豚', avatar: '🐬', avatarImg: '', coverImg: '',
+        customTitle: '深海浪花旅人', wealthExp: 120000, charmExp: 90000, totalWin: 420000,
+        nobility: '', litGifts: ['g1', 'g3'], relationships: []
+      }
     },
     leaderboard: [
       { id: '100002', nick: '小八', win: 680000 },
@@ -783,6 +853,8 @@ function createDefaultState() {
     gifts: JSON.parse(JSON.stringify(DEFAULT_GIFTS)),
     nobilityTiers: JSON.parse(JSON.stringify(DEFAULT_NOBILITY)),
     blindboxes: JSON.parse(JSON.stringify(DEFAULT_BLINDBOXES)),
+    shopItems: JSON.parse(JSON.stringify(DEFAULT_SHOP_ITEMS)),
+    relIcons: { lover: '', bestie: '', close: '', parent: '', mentor: '' },
     selectedChip: 50,
     currentBets: {},
     lastBets: {},
@@ -802,15 +874,16 @@ function createDefaultState() {
     micOn: false,
     currentRoom: '星河海洋大廳',
     rooms: [
-      { id: 'r1', name: '星河海洋大廳', host: '企鵝官方', online: 28, isPrivate: false },
-      { id: 'r2', name: '小八的私人聊天房', host: '小八', online: 4, isPrivate: true }
+      { id: 'r_official', name: '星河海洋大廳', ownerId: 'official', host: '企鵝官方', online: 28, isOfficial: true, password: '' },
+      { id: 'r_100001', name: '企鵝小萌主的專屬語音房', ownerId: '100001', host: '企鵝小萌主', online: 1, isOfficial: false, password: '' },
+      { id: 'r_100002', name: '小八的私人語音房', ownerId: '100002', host: '小八', online: 4, isOfficial: false, password: '1234' }
     ],
     friends: [
       { id: '100002', nick: '小八', avatar: '🐱', online: true, messages: [{ sender: '小八', text: '嗨！歡迎來到私人聊天室～', ts: nowTs - 3600000 }] },
       { id: '100003', nick: '星河海豚', avatar: '🐬', online: true, messages: [{ sender: '星河海豚', text: '今天要不要一起玩企鵝的麻吉？', ts: nowTs - 1800000 }] }
     ],
     chats: [
-      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有訊息與資料均即時永久保存！', ts: nowTs - 7200000 }
+      { tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，所有訊息與遊玩紀錄均永久保存！', ts: nowTs - 7200000 }
     ],
     cloudUrl: ''
   };
@@ -827,34 +900,57 @@ function loadState() {
     const m = Object.assign(base, parsed);
     m.user = Object.assign(base.user, parsed.user || {});
     if (!Array.isArray(m.user.litGifts)) m.user.litGifts = [];
+    if (!Array.isArray(m.user.relationships)) m.user.relationships = [];
     if (!Array.isArray(m.backpack)) m.backpack = [];
     if (!Array.isArray(m.gifts) || !m.gifts.length) m.gifts = JSON.parse(JSON.stringify(DEFAULT_GIFTS));
     if (!Array.isArray(m.nobilityTiers) || !m.nobilityTiers.length) m.nobilityTiers = JSON.parse(JSON.stringify(DEFAULT_NOBILITY));
     if (!Array.isArray(m.blindboxes) || !m.blindboxes.length) m.blindboxes = JSON.parse(JSON.stringify(DEFAULT_BLINDBOXES));
+    if (!Array.isArray(m.shopItems) || !m.shopItems.length) m.shopItems = JSON.parse(JSON.stringify(DEFAULT_SHOP_ITEMS));
+    if (!m.relIcons || typeof m.relIcons !== 'object') m.relIcons = base.relIcons;
     if (!Array.isArray(m.leaderboard)) m.leaderboard = base.leaderboard;
     if (!m.playersDirectory || typeof m.playersDirectory !== 'object') m.playersDirectory = base.playersDirectory;
     if (!m.accounts || typeof m.accounts !== 'object') m.accounts = base.accounts;
+    if (!Array.isArray(m.rooms) || !m.rooms.length) m.rooms = base.rooms;
     return m;
   } catch (e) {
     return createDefaultState();
   }
 }
 
+function ensureSelfVoiceRoom() {
+  const exists = state.rooms.some(r => r.ownerId === state.user.id);
+  if (!exists) {
+    state.rooms.push({
+      id: 'r_' + state.user.id,
+      name: `${state.user.nick}的專屬語音房`,
+      ownerId: state.user.id,
+      host: state.user.nick,
+      online: 1,
+      isOfficial: false,
+      password: ''
+    });
+  }
+}
+
 function syncCurrentUserDirectory() {
+  ensureSelfVoiceRoom();
   state.playersDirectory[state.user.id] = {
     id: state.user.id,
     nick: state.user.nick,
     avatar: state.user.avatar,
     avatarImg: state.user.avatarImg || '',
+    coverImg: state.user.coverImg || '',
     customTitle: state.user.customTitle || '',
     wealthExp: state.user.wealthExp || 0,
     charmExp: state.user.charmExp || 0,
     totalWin: state.user.totalWin || 0,
     nobility: state.user.nobility || '',
-    litGifts: Array.isArray(state.user.litGifts) ? state.user.litGifts.slice() : []
+    litGifts: Array.isArray(state.user.litGifts) ? state.user.litGifts.slice() : [],
+    relationships: Array.isArray(state.user.relationships) ? state.user.relationships.slice() : []
   };
   state.accounts[state.user.id] = Object.assign({}, state.user, {
-    litGifts: Array.isArray(state.user.litGifts) ? state.user.litGifts.slice() : []
+    litGifts: Array.isArray(state.user.litGifts) ? state.user.litGifts.slice() : [],
+    relationships: Array.isArray(state.user.relationships) ? state.user.relationships.slice() : []
   });
 }
 
@@ -918,6 +1014,8 @@ function applyTheme() {
   const bgObj = CHAT_BG_THEMES.find(x => x.id === state.chatBgId) || CHAT_BG_THEMES[0];
   const chatEl = document.getElementById('chat-box');
   if (chatEl) chatEl.style.background = bgObj.bg;
+  const pmBody = document.getElementById('full-pm-body');
+  if (pmBody) pmBody.style.background = bgObj.bg;
 }
 
 function openChatBgModal() {
@@ -959,7 +1057,7 @@ function getNobilityObj(nobId) {
 
 function checkMax666AndNotify(kind, info) {
   if (!info.isMax) return;
-  const label = kind === 'wealth' ? '財富等級' : '魅力等級';
+  const label = kind === 'wealth' ? '財富等級' : '🌹魅力等級';
   const msg = `🌟 全服通知！恭喜【${state.user.nick}】(ID:${state.user.id}) ${label}直達最高 Lv.666！`;
   addChat('全服666', '系統公告', msg);
   showToast(msg);
@@ -985,7 +1083,7 @@ function saveMax666Title() {
 function openLevelProgressModal(kind) {
   const isWealth = kind === 'wealth';
   const info = calcLevelInfo(isWealth ? state.user.wealthExp : state.user.charmExp);
-  const titleText = isWealth ? '💎 財富等級進度' : '💖 魅力等級進度';
+  const titleText = isWealth ? '💎 財富等級進度' : '🌹 魅力等級進度';
   openModal(titleText, `
     <div class="list-item" style="margin-bottom:8px;"><span>目前等級</span><b>Lv.${info.level} / 666</b></div>
     <div class="list-item" style="margin-bottom:8px;"><span>已累積積分</span><b style="color:var(--gold-hi);">${formatNum(info.score)} 分</b></div>
@@ -1031,7 +1129,7 @@ function renderProfile() {
   const cEl = document.getElementById('charm-lvl-badge');
   wEl.textContent = `💎 Lv.${wInfo.level}`;
   wEl.style.color = getLevelColor(wInfo.level);
-  cEl.textContent = `💖 Lv.${cInfo.level}`;
+  cEl.textContent = `🌹 Lv.${cInfo.level}`;
   cEl.style.color = getLevelColor(cInfo.level);
 
   const nob = getNobilityObj();
@@ -1045,18 +1143,24 @@ function renderProfile() {
   document.getElementById('bag-count-badge').textContent = totalBagCount;
   const b2 = document.getElementById('bag-count-badge-2');
   if (b2) b2.textContent = totalBagCount;
+  const bShop = document.getElementById('bag-count-badge-shop');
+  if (bShop) bShop.textContent = totalBagCount;
 }
 
-/* 8 & 9. 個人主頁畫面（點擊任何人頭像進入） */
+/* 4. 個人主頁：自行從相簿選取照片新增封面照；5. 點其他人主頁不顯示累積積分數字，顯示等級、ID、名字、頭像、封面照、已點亮禮物與親密關係牆 */
 function openPlayerHomepage(playerId) {
   syncCurrentUserDirectory();
   state.viewingPlayerId = playerId || state.user.id;
+  const isSelf = state.viewingPlayerId === state.user.id;
   const p = state.playersDirectory[state.viewingPlayerId] || state.playersDirectory[state.user.id];
   const wInfo = calcLevelInfo(p.wealthExp);
   const cInfo = calcLevelInfo(p.charmExp);
   const nob = getNobilityObj(p.nobility);
   const titleBadge = p.customTitle ? `🏅 ${p.customTitle}` : (nob ? `👑 ${nob.name}` : '🌊 海洋旅人');
   const avHtml = p.avatarImg ? `<img src="${p.avatarImg}" alt="av" />` : p.avatar;
+  const coverHtml = p.coverImg
+    ? `<img src="${p.coverImg}" class="cover-img" alt="cover" />`
+    : `<span style="font-size:12px;color:var(--text-muted);">尚未設定封面照</span>`;
 
   const litSet = new Set(p.litGifts || []);
   const litHtml = state.gifts.filter(g => litSet.has(g.id)).map(g => `
@@ -1066,11 +1170,40 @@ function openPlayerHomepage(playerId) {
     </div>
   `).join('');
 
+  const rels = Array.isArray(p.relationships) ? p.relationships : [];
+  const relHtml = rels.map(r => {
+    const rt = RELATIONSHIP_TYPES.find(x => x.key === r.relType) || RELATIONSHIP_TYPES[0];
+    const customImg = state.relIcons && state.relIcons[rt.key];
+    const iconContent = customImg
+      ? `<img src="${customImg}" style="width:24px;height:24px;border-radius:6px;object-fit:cover;" alt="rel" />`
+      : (r.icon || rt.defaultIcon);
+    return `
+      <div class="rel-card ${rt.cssClass}">
+        <div class="rel-icon-box">${iconContent}</div>
+        <div>
+          <div>${rt.label} · ${r.targetNick}</div>
+          <div style="font-size:9px;opacity:0.75;">ID:${r.targetId}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const wealthRightText = isSelf
+    ? `Lv.${wInfo.level}（已累積 ${formatNum(wInfo.score)} 分）`
+    : `Lv.${wInfo.level}`;
+  const charmRightText = isSelf
+    ? `Lv.${cInfo.level}（已累積 ${formatNum(cInfo.score)} 分）`
+    : `Lv.${cInfo.level}`;
+
   document.getElementById('homepage-card-container').innerHTML = `
     <div class="section-title">
-      <span>🪪 個人主頁</span>
-      <button class="mini-chip" onclick="switchTab('hall')">返回大廳</button>
+      <span>🪪 ${isSelf ? '我的個人主頁' : p.nick + ' 的主頁'}</span>
+      <div style="display:flex;gap:5px;">
+        ${isSelf ? `<label class="mini-chip gold" style="cursor:pointer;">🖼️ 更換封面照<input type="file" accept="image/*" style="display:none;" onchange="handleCoverUpload(event)" /></label>` : ''}
+        <button class="mini-chip" onclick="switchTab('hall')">返回大廳</button>
+      </div>
     </div>
+    <div class="hp-cover">${coverHtml}</div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
       <div class="avatar-wrap" style="width:60px;height:60px;font-size:30px;">${avHtml}</div>
       <div>
@@ -1079,21 +1212,36 @@ function openPlayerHomepage(playerId) {
         <div style="margin-top:4px;"><span class="mini-chip gold">${titleBadge}</span></div>
       </div>
     </div>
-    <div class="list-item" style="margin-bottom:6px;" onclick="openLevelProgressModal('wealth')">
+    <div class="list-item" style="margin-bottom:6px;" onclick="${isSelf ? `openLevelProgressModal('wealth')` : ''}">
       <span>💎 財富等級</span>
-      <b style="color:${getLevelColor(wInfo.level)};">Lv.${wInfo.level}（已累積 ${formatNum(wInfo.score)} 分）</b>
+      <b style="color:${getLevelColor(wInfo.level)};">${wealthRightText}</b>
     </div>
-    <div class="list-item" style="margin-bottom:10px;" onclick="openLevelProgressModal('charm')">
-      <span>💖 魅力等級</span>
-      <b style="color:${getLevelColor(cInfo.level)};">Lv.${cInfo.level}（已累積 ${formatNum(cInfo.score)} 分）</b>
+    <div class="list-item" style="margin-bottom:10px;" onclick="${isSelf ? `openLevelProgressModal('charm')` : ''}">
+      <span>🌹 魅力等級</span>
+      <b style="color:${getLevelColor(cInfo.level)};">${charmRightText}</b>
     </div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">💞 親密關係牆 (${rels.length})</div>
+    ${relHtml ? `<div class="rel-grid" style="margin-bottom:10px;">${relHtml}</div>` : `<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">尚未綁定親密關係</div>`}
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">🎁 禮物牆已點亮圖標 (${(p.litGifts || []).length})</div>
     ${litHtml ? `<div class="lit-gift-grid">${litHtml}</div>` : `<div style="font-size:11px;color:var(--text-muted);">尚未點亮禮物圖標</div>`}
   `;
   switchTab('homepage');
 }
 
-/* 麥位頭像與個人頭像一致 */
+function handleCoverUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.user.coverImg = reader.result;
+    saveState();
+    openPlayerHomepage(state.user.id);
+    showToast('已更新個人主頁封面照');
+  };
+  reader.readAsDataURL(file);
+}
+
+/* 麥位與聊天 */
 function syncMyMicsWithProfile() {
   state.mics.forEach(m => {
     if (m.isSelf || m.id === state.user.id) {
@@ -1168,26 +1316,71 @@ function triggerWelcomeBanner() {
   addChat('進房', state.user.nick, `進入「${state.currentRoom}」✨`);
 }
 
-function addChat(tag, nick, text) {
-  state.chats.push({ tag, nick, playerId: state.user.id, text, ts: Date.now() });
-  if (state.chats.length > 80) state.chats.shift();
+/* 11. 官方系統聊天室通知與確認綁定親密關係 */
+function addChat(tag, nick, text, extra = {}) {
+  state.chats.push({
+    id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    tag, nick, playerId: extra.playerId || state.user.id, text, ts: Date.now(),
+    relInvite: extra.relInvite || null
+  });
+  if (state.chats.length > 100) state.chats.shift();
   renderChats();
   saveState();
 }
 
 function renderChats() {
   const box = document.getElementById('chat-box');
-  box.innerHTML = state.chats.map(c => `
-    <div class="chat-msg-item">
-      <div class="chat-time">${formatDateTimeFull(c.ts)}</div>
-      <div class="chat-msg">
-        <span class="chat-tag">${c.tag}</span>
-        <b style="cursor:pointer;" onclick="openPlayerHomepage('${c.playerId || state.user.id}')">${c.nick}：</b>
-        <span>${c.text}</span>
+  box.innerHTML = state.chats.map(c => {
+    const inviteBtn = c.relInvite && !c.relInvite.accepted
+      ? `<div><button class="chat-confirm-btn" onclick="acceptRelationshipInvite('${c.id}')">✓ 確認確定關係</button></div>`
+      : '';
+    return `
+      <div class="chat-msg-item">
+        <div class="chat-time">${formatDateTimeFull(c.ts)}</div>
+        <div class="chat-msg">
+          <span class="chat-tag">${c.tag}</span>
+          <b style="cursor:pointer;" onclick="openPlayerHomepage('${c.playerId || state.user.id}')">${c.nick}：</b>
+          <span>${c.text}</span>
+        </div>
+        ${inviteBtn}
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   box.scrollTop = box.scrollHeight;
+}
+
+function acceptRelationshipInvite(msgId) {
+  const msg = state.chats.find(m => m.id === msgId);
+  if (!msg || !msg.relInvite || msg.relInvite.accepted) return;
+  const inv = msg.relInvite;
+  inv.accepted = true;
+
+  if (!Array.isArray(state.user.relationships)) state.user.relationships = [];
+  state.user.relationships.push({
+    targetId: inv.fromId, targetNick: inv.fromNick, relType: inv.relType, icon: inv.icon
+  });
+
+  if (!state.playersDirectory[inv.fromId]) {
+    state.playersDirectory[inv.fromId] = {
+      id: inv.fromId, nick: inv.fromNick, avatar: '🐧', avatarImg: '', coverImg: '',
+      customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: []
+    };
+  }
+  const senderDir = state.playersDirectory[inv.fromId];
+  if (!Array.isArray(senderDir.relationships)) senderDir.relationships = [];
+  senderDir.relationships.push({
+    targetId: state.user.id, targetNick: state.user.nick, relType: inv.relType, icon: inv.icon
+  });
+  if (state.accounts[inv.fromId]) {
+    if (!Array.isArray(state.accounts[inv.fromId].relationships)) state.accounts[inv.fromId].relationships = [];
+    state.accounts[inv.fromId].relationships.push({
+      targetId: state.user.id, targetNick: state.user.nick, relType: inv.relType, icon: inv.icon
+    });
+  }
+
+  saveState();
+  renderChats();
+  showToast(`🎉 已與 ${inv.fromNick} 綁定【${inv.relLabel}】關係！`);
 }
 
 function sendChat() {
@@ -1199,27 +1392,30 @@ function sendChat() {
   inp.value = '';
 }
 
-/* 13. 盲盒選單開合 */
+/* 盲盒選單與企鵝的麻吉選單 */
 function toggleBoxMenu(open) {
   state.boxMenuOpen = !!open;
   document.getElementById('box-launcher-card').style.display = state.boxMenuOpen ? 'none' : 'block';
   document.getElementById('box-expanded-card').style.display = state.boxMenuOpen ? 'block' : 'none';
+  saveState(false);
 }
 
-/* 企鵝的麻吉選單與全服排行榜 */
 function enterMajiMenu() {
   state.majiExpanded = true;
   renderMajiMenuState();
+  saveState(false);
 }
 
 function collapseMajiMenu() {
   state.majiExpanded = false;
   renderMajiMenuState();
+  saveState(false);
 }
 
 function switchMajiSubTab(sub) {
   state.majiSubTab = sub;
   renderMajiMenuState();
+  saveState(false);
 }
 
 function renderMajiMenuState() {
@@ -1341,7 +1537,7 @@ function spinNow() {
       }
 
       state.history.push({ round: state.roundIndex, animalId: winner.id });
-      if (state.history.length > 30) state.history.shift();
+      if (state.history.length > 50) state.history.shift();
       if (Object.keys(state.currentBets).length > 0) state.lastBets = Object.assign({}, state.currentBets);
       state.currentBets = {};
       state.roundIndex += 1;
@@ -1359,9 +1555,10 @@ setInterval(() => {
   if (state.countdown <= 0) { spinNow(); return; }
   const pill = document.getElementById('game-timer-pill');
   if (pill) pill.textContent = `請選擇 ${state.countdown}s`;
+  saveState(false);
 }, 1000);
 
-/* 盲盒獎池機率、開盲盒入背包、管理員新增與自訂機率 */
+/* 盲盒與背包 */
 function renderBlindBoxes() {
   const grid = document.getElementById('blindbox-grid');
   grid.innerHTML = state.blindboxes.map((box, idx) => `
@@ -1432,15 +1629,16 @@ function openBlindBox(boxIdx, times) {
   `);
 }
 
-function pushRewardToBackpack(reward, boxName) {
+function pushRewardToBackpack(reward, boxName, extra = {}) {
   if (!Array.isArray(state.backpack)) state.backpack = [];
-  const existing = state.backpack.find(it => it.name === reward.name && it.boxName === boxName);
+  const existing = state.backpack.find(it => it.name === reward.name && it.boxName === boxName && (it.relType || '') === (extra.relType || ''));
   if (existing) existing.count = (existing.count || 1) + 1;
   else {
     state.backpack.push({
       id: 'bag_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-      name: reward.name, icon: reward.icon || '🎁',
-      value: Number(reward.value || 0), boxName: boxName || '盲盒', count: 1
+      name: reward.name, icon: reward.icon || '🎁', img: reward.img || '',
+      value: Number(reward.value || 0), boxName: boxName || '背包物品',
+      relType: extra.relType || '', count: 1
     });
   }
 }
@@ -1450,25 +1648,83 @@ function openBackpackModal() {
     openModal('🎒 我的背包', `
       <div style="text-align:center;padding:24px 10px;color:var(--text-muted);font-size:12px;">
         <div style="font-size:34px;margin-bottom:8px;">🎒</div>
-        目前背包裡空空如也～<br/>前往「盲盒選單」開啟盲盒，抽到的獎勵會直接存放在這裡！
+        目前背包裡空空如也～<br/>前往「商城」或「盲盒選單」取得商品，都會直接放在這裡！
       </div>
-      <button class="primary-btn" onclick="closeModal();switchTab('hall');toggleBoxMenu(true)">前往盲盒選單</button>
+      <button class="primary-btn" onclick="closeModal();switchTab('shop')">前往商城選購</button>
     `);
     return;
   }
-  const itemsHtml = state.backpack.map((item, idx) => `
-    <div class="list-item" style="margin-bottom:6px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:24px;">${item.icon}</span>
-        <div>
-          <div style="font-size:12px;font-weight:800;">${item.name} <span style="color:var(--gold-hi);">x${item.count}</span></div>
-          <div style="font-size:10px;color:var(--text-muted);">來源：${item.boxName} · 價值 💎${formatNum(item.value)}</div>
+  const itemsHtml = state.backpack.map((item, idx) => {
+    const rt = RELATIONSHIP_TYPES.find(x => x.key === item.relType);
+    const btnHtml = rt
+      ? `<button class="mini-chip gold" onclick="openSendRelRingModal(${idx})">送${rt.label}戒</button>`
+      : `<button class="mini-chip gold" onclick="giftFromBackpack(${idx})">贈送</button>`;
+    return `
+      <div class="list-item" style="margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:24px;">${item.img ? `<img src="${item.img}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;" />` : item.icon}</span>
+          <div>
+            <div style="font-size:12px;font-weight:800;">${item.name} <span style="color:var(--gold-hi);">x${item.count}</span></div>
+            <div style="font-size:10px;color:var(--text-muted);">來源：${item.boxName} · 價值 💎${formatNum(item.value)}</div>
+          </div>
         </div>
+        ${btnHtml}
       </div>
-      <button class="mini-chip gold" onclick="giftFromBackpack(${idx})">贈送</button>
-    </div>
-  `).join('');
-  openModal('🎒 我的背包（盲盒獎勵）', itemsHtml);
+    `;
+  }).join('');
+  openModal('🎒 我的背包', itemsHtml);
+}
+
+function openSendRelRingModal(bagIdx) {
+  const item = state.backpack[bagIdx];
+  if (!item) return;
+  const rt = RELATIONSHIP_TYPES.find(x => x.key === item.relType) || RELATIONSHIP_TYPES[0];
+  const friendOpts = state.friends.map(f => `<option value="${f.id}">${f.nick} (ID:${f.id})</option>`).join('');
+  openModal(`💞 贈送【${rt.label}】戒指`, `
+    <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;">選擇好友並輸入對象 ID（送出後由官方系統聊天室通知對方確認）：</div>
+    <select id="rel-target-sel" class="field-select">${friendOpts}</select>
+    <input id="rel-target-id" class="field-input" maxlength="8" placeholder="或直接輸入對象 ID" />
+    <button class="primary-btn" onclick="confirmSendRelRing(${bagIdx})">送出戒指並發送關係通知</button>
+  `);
+}
+
+function confirmSendRelRing(bagIdx) {
+  const item = state.backpack[bagIdx];
+  if (!item) return;
+  const rt = RELATIONSHIP_TYPES.find(x => x.key === item.relType) || RELATIONSHIP_TYPES[0];
+  const selId = document.getElementById('rel-target-sel').value;
+  const typedId = document.getElementById('rel-target-id').value.trim();
+  const targetId = typedId || selId;
+  const dirObj = state.playersDirectory[targetId] || state.friends.find(f => f.id === targetId);
+  const targetNick = dirObj ? dirObj.nick : ('玩家_' + targetId);
+
+  if (item.count > 1) item.count -= 1;
+  else state.backpack.splice(bagIdx, 1);
+
+  const customImg = state.relIcons && state.relIcons[rt.key];
+  addChat(
+    '官方系統',
+    '系統通知',
+    `【${state.user.nick}】(ID:${state.user.id}) 向【${targetNick}】(ID:${targetId}) 贈送了 ${item.icon}${item.name}，邀請建立【${rt.label}】關係！請確認是否確定關係。`,
+    {
+      playerId: state.user.id,
+      relInvite: {
+        fromId: state.user.id,
+        fromNick: state.user.nick,
+        toId: targetId,
+        toNick: targetNick,
+        relType: rt.key,
+        relLabel: rt.label,
+        icon: customImg || item.icon || rt.defaultIcon,
+        accepted: false
+      }
+    }
+  );
+  saveState();
+  renderProfile();
+  closeModal();
+  switchTab('hall');
+  showToast('已透過官方系統聊天室發送關係確認通知');
 }
 
 function giftFromBackpack(idx) {
@@ -1482,7 +1738,38 @@ function giftFromBackpack(idx) {
   renderProfile(); saveState(); openBackpackModal();
 }
 
-/* 禮物牆與點亮主頁禮物圖標 */
+/* 9 & 13. 商城（管理員上架、自訂價格與禮物名稱／圖示；購買直接放背包） */
+function renderShop() {
+  const grid = document.getElementById('shop-grid');
+  grid.innerHTML = state.shopItems.map((it, idx) => {
+    const visual = it.img
+      ? `<img src="${it.img}" class="thumb-img" alt="${it.name}" />`
+      : it.icon;
+    return `
+      <div class="shop-card">
+        <div class="shop-icon">${visual}</div>
+        <div class="shop-title">${it.name}</div>
+        <div class="shop-price">💎 ${formatNum(it.price)}</div>
+        <button class="box-open-btn ten" onclick="buyShopItem(${idx})">立即購買入背包</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function buyShopItem(idx) {
+  const it = state.shopItems[idx];
+  if (!it) return;
+  if (state.user.diamonds < it.price) { showToast('鑽石不足'); return; }
+  state.user.diamonds -= it.price;
+  state.user.wealthExp += it.price;
+  checkMax666AndNotify('wealth', calcLevelInfo(state.user.wealthExp));
+  pushRewardToBackpack({ name: it.name, icon: it.icon || '🛍️', img: it.img || '', value: it.price }, '星河商城', { relType: it.relType || '' });
+  renderProfile();
+  saveState();
+  showToast(`已購買【${it.name}】並放入背包！`);
+}
+
+/* 禮物牆 */
 function renderGifts() {
   const grid = document.getElementById('gift-grid');
   grid.innerHTML = state.gifts.map(g => {
@@ -1515,7 +1802,7 @@ function sendWallGift(giftId) {
   showToast(`已送出 ${g.name} 並點亮主頁圖標！`);
 }
 
-/* 爵位（支援管理員自訂圖片與特權） */
+/* 爵位 */
 function renderShieldSvg(tier) {
   if (tier.img) {
     return `<img src="${tier.img}" class="shield-img" alt="${tier.name}" />`;
@@ -1567,21 +1854,96 @@ function buyNobility(id) {
   showToast(`👑 恭喜晉升【${tier.name}】！`);
 }
 
-/* 私人房與好友私人聊天室 */
+/* 6 & 7. 語音房：每人專屬語音房、密碼鎖房、非官方房可改名 */
 function renderRooms() {
+  ensureSelfVoiceRoom();
   const list = document.getElementById('room-list');
-  list.innerHTML = state.rooms.map(r => `
-    <div class="list-item">
-      <div>
-        <div style="font-size:13px;font-weight:800;">${r.isPrivate ? '🔒' : '🌊'} ${r.name}</div>
-        <div style="font-size:10px;color:var(--text-muted);">房主：${r.host} · 在線 ${r.online} 人</div>
+  list.innerHTML = state.rooms.map((r, idx) => {
+    const locked = Boolean(r.password);
+    const canRename = !r.isOfficial;
+    return `
+      <div class="list-item">
+        <div>
+          <div style="font-size:13px;font-weight:800;">
+            ${r.isOfficial ? '🏛️' : (locked ? '🔒' : '🎙️')} ${r.name}
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);">
+            房主：${r.host} · 在線 ${r.online} 人 ${locked ? '· 已上鎖' : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;">
+          ${canRename ? `<button class="mini-chip" onclick="openRenameRoomModal(${idx})">改名</button>` : ''}
+          ${r.ownerId === state.user.id ? `<button class="mini-chip" onclick="openRoomLockModal(${idx})">${locked ? '改密碼' : '上鎖'}</button>` : ''}
+          <button class="mini-chip gold" onclick="tryEnterRoom(${idx})">進入</button>
+        </div>
       </div>
-      <button class="mini-chip gold" onclick="enterRoom('${r.name}')">進入房間</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-function enterRoom(name) {
+function openRenameRoomModal(idx) {
+  const r = state.rooms[idx];
+  if (!r || r.isOfficial) return;
+  openModal('✏️ 修改語音房間名稱', `
+    <input id="rename-room-inp" class="field-input" value="${r.name}" placeholder="輸入新的房間名稱" />
+    <button class="primary-btn" onclick="confirmRenameRoom(${idx})">儲存房名</button>
+  `);
+}
+
+function confirmRenameRoom(idx) {
+  const r = state.rooms[idx];
+  const val = document.getElementById('rename-room-inp').value.trim();
+  if (!r || !val) return;
+  r.name = val;
+  if (state.currentRoom === r.name) document.getElementById('current-room-title').textContent = val;
+  renderRooms(); saveState(); closeModal();
+  showToast('已更新語音房間名稱');
+}
+
+function openRoomLockModal(idx) {
+  const r = state.rooms[idx];
+  if (!r || r.ownerId !== state.user.id) return;
+  openModal('🔒 設定語音房密碼鎖', `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">留空表示解除密碼鎖；設定後他人進入需輸入密碼。</div>
+    <input id="room-pwd-set" class="field-input" value="${r.password || ''}" placeholder="輸入房間密碼（留空可解鎖）" />
+    <button class="primary-btn" onclick="confirmRoomLock(${idx})">儲存密碼設定</button>
+  `);
+}
+
+function confirmRoomLock(idx) {
+  const r = state.rooms[idx];
+  if (!r) return;
+  r.password = document.getElementById('room-pwd-set').value.trim();
+  renderRooms(); saveState(); closeModal();
+  showToast(r.password ? '語音房已設定密碼鎖' : '已解除語音房密碼鎖');
+}
+
+function tryEnterRoom(idx) {
+  const r = state.rooms[idx];
+  if (!r) return;
+  if (r.password && r.ownerId !== state.user.id) {
+    openModal(`🔒 輸入【${r.name}】密碼`, `
+      <input id="room-pwd-try" type="password" class="field-input" placeholder="請輸入房間密碼" />
+      <button class="primary-btn" onclick="verifyRoomPassword(${idx})">驗證並進入</button>
+    `);
+    return;
+  }
+  enterRoomByName(r.name);
+}
+
+function verifyRoomPassword(idx) {
+  const r = state.rooms[idx];
+  const input = document.getElementById('room-pwd-try').value.trim();
+  if (!r) return;
+  if (input === r.password) {
+    closeModal();
+    enterRoomByName(r.name);
+  } else {
+    showToast('密碼錯誤，無法進入');
+  }
+}
+
+function enterRoomByName(name) {
   state.currentRoom = name;
   document.getElementById('current-room-title').textContent = name;
   switchTab('hall');
@@ -1590,19 +1952,25 @@ function enterRoom(name) {
 }
 
 function createPrivateRoom() {
-  openModal('🏠 建立私人聊天／語音房', `
-    <input id="new-room-name" class="field-input" placeholder="輸入私人房間名稱" />
+  openModal('🎙️ 建立專屬語音房', `
+    <input id="new-room-name" class="field-input" placeholder="輸入語音房間名稱" />
+    <input id="new-room-pwd" class="field-input" placeholder="選填：設定上鎖密碼（留空為公開）" />
     <button class="primary-btn" onclick="confirmCreateRoom()">立即建立並進入</button>
   `);
 }
 
 function confirmCreateRoom() {
   const name = document.getElementById('new-room-name').value.trim();
+  const pwd = document.getElementById('new-room-pwd').value.trim();
   if (!name) return;
-  state.rooms.unshift({ id: 'r_' + Date.now(), name, host: state.user.nick, online: 1, isPrivate: true });
-  renderRooms(); closeModal(); enterRoom(name);
+  state.rooms.unshift({
+    id: 'r_' + Date.now(), name, ownerId: state.user.id,
+    host: state.user.nick, online: 1, isOfficial: false, password: pwd
+  });
+  renderRooms(); closeModal(); enterRoomByName(name);
 }
 
+/* 3. 好友與全螢幕私人聊天室 */
 function renderFriends() {
   const list = document.getElementById('friend-list');
   list.innerHTML = state.friends.map((f, idx) => `
@@ -1614,36 +1982,50 @@ function renderFriends() {
           <div style="font-size:10px;color:var(--text-muted);">ID:${f.id}</div>
         </div>
       </div>
-      <button class="mini-chip" onclick="openPmModal(${idx})">💬 私人聊天室</button>
+      <button class="mini-chip" onclick="openFullscreenPm(${idx})">💬 私人聊天室</button>
     </div>
   `).join('');
 }
 
-function openPmModal(idx) {
+function openFullscreenPm(idx) {
   const f = state.friends[idx];
   if (!f) return;
+  state.activePmFriendIdx = idx;
+  document.getElementById('full-pm-title').textContent = `🔒 ${f.nick} (ID:${f.id})`;
+  renderFullscreenPmBody(f);
+  document.getElementById('fullscreen-pm-overlay').classList.add('show');
+}
+
+function renderFullscreenPmBody(f) {
   const bgObj = CHAT_BG_THEMES.find(x => x.id === state.chatBgId) || CHAT_BG_THEMES[0];
-  const msgs = f.messages.map(m => {
+  const body = document.getElementById('full-pm-body');
+  body.style.background = bgObj.bg;
+  body.innerHTML = (f.messages || []).map(m => {
     const isObj = typeof m === 'object' && m !== null;
     const text = isObj ? m.text : String(m);
     const timeStr = isObj && m.ts ? `<div class="chat-time">${formatDateTimeFull(m.ts)}</div>` : '';
     return `<div class="chat-msg-item">${timeStr}<div class="chat-msg">${text}</div></div>`;
   }).join('');
-  openModal(`🔒 私人聊天室 · ${f.nick}`, `
-    <div style="max-height:190px;overflow-y:auto;margin-bottom:8px;padding:8px;border-radius:10px;background:${bgObj.bg};">${msgs}</div>
-    <div style="display:flex;gap:6px;">
-      <input id="pm-inp" class="field-input" style="margin:0;" placeholder="輸入私人訊息..." onkeydown="if(event.key==='Enter')sendPm(${idx})" />
-      <button class="send-btn" onclick="sendPm(${idx})">發送</button>
-    </div>
-  `);
+  body.scrollTop = body.scrollHeight;
 }
 
-function sendPm(idx) {
-  const inp = document.getElementById('pm-inp');
+function closeFullscreenPm() {
+  state.activePmFriendIdx = null;
+  document.getElementById('fullscreen-pm-overlay').classList.remove('show');
+}
+
+function sendFullscreenPm() {
+  const idx = state.activePmFriendIdx;
+  if (idx === null || idx === undefined) return;
+  const f = state.friends[idx];
+  const inp = document.getElementById('full-pm-inp');
   const txt = inp.value.trim();
-  if (!txt) return;
-  state.friends[idx].messages.push({ sender: state.user.nick, text: `${state.user.nick}：${txt}`, ts: Date.now() });
-  saveState(); openPmModal(idx);
+  if (!f || !txt) return;
+  if (!Array.isArray(f.messages)) f.messages = [];
+  f.messages.push({ sender: state.user.nick, text: `${state.user.nick}：${txt}`, ts: Date.now() });
+  inp.value = '';
+  saveState();
+  renderFullscreenPmBody(f);
 }
 
 function addDemoFriend() {
@@ -1658,14 +2040,14 @@ function confirmAddFriend() {
   const id = (document.getElementById('add-fid-id').value.trim() || String(Math.floor(100000 + Math.random() * 899999))).slice(0, 8);
   const nick = document.getElementById('add-fid-nick').value.trim() || ('玩家' + id);
   if (!state.playersDirectory[id]) {
-    state.playersDirectory[id] = { id, nick, avatar: '🐧', avatarImg: '', customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [] };
+    state.playersDirectory[id] = { id, nick, avatar: '🐧', avatarImg: '', coverImg: '', customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [] };
   }
   state.friends.push({ id, nick, avatar: '🐧', online: true, messages: [{ sender: '系統', text: '已開啟私人聊天室！', ts: Date.now() }] });
   renderFriends(); saveState(); closeModal();
   showToast(`已新增好友 ${nick} (ID:${id})`);
 }
 
-/* 4. 切換帳號（設定 ID 與密碼）與個人資料編輯（ID 不可重複、最多八碼） */
+/* 切換帳號（設定 ID 與密碼）與個人資料編輯 */
 function openSwitchAccountModal() {
   const savedList = Object.values(state.accounts || {}).map(acc => `
     <div class="list-item" style="margin-bottom:6px;">
@@ -1716,6 +2098,7 @@ function confirmSwitchAccount() {
     fresh.wealthExp = 0;
     fresh.charmExp = 0;
     fresh.litGifts = [];
+    fresh.relationships = [];
     state.user = fresh;
   }
   syncCurrentUserDirectory();
@@ -1787,7 +2170,7 @@ function openHistoryModal() {
   openModal('📜 《企鵝的麻吉》開獎記錄', rows || '<div style="font-size:12px;">暫無記錄</div>');
 }
 
-/* 管理員後台（密碼 8888：指定 ID 發鑽、禮物改圖／新增、盲盒新增與自訂機率、麻吉 8 格各自機率、爵位改圖與自訂特權） */
+/* 管理員後台（密碼 8888：發鑽、禮物改圖／新增、商城上架與自訂價格／名稱／圖示、盲盒新增與自訂機率、麻吉 8 格各自機率、爵位改圖與自訂特權、親密關係圖示上傳） */
 function openAdminGate() {
   if (state.isAdmin) { openAdminPanel(); return; }
   openModal('🔐 管理員權限驗證', `
@@ -1808,6 +2191,7 @@ function openAdminPanel() {
   const giftOpts = state.gifts.map((g, i) => `<option value="${i}">${g.name} (💎${formatNum(g.price)})</option>`).join('');
   const nobOpts = state.nobilityTiers.map((n, i) => `<option value="${i}">${n.name} (💎${formatNum(n.price)})</option>`).join('');
   const boxOpts = state.blindboxes.map((b, i) => `<option value="${i}">${b.name}</option>`).join('');
+  const relOpts = RELATIONSHIP_TYPES.map(rt => `<option value="${rt.key}">${rt.label}關係</option>`).join('');
   const animalInputs = ANIMALS.map(a => `
     <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;font-size:11px;">
       <span>${a.emoji} ${a.name} (${a.mult}x)</span>
@@ -1821,14 +2205,34 @@ function openAdminPanel() {
     <input id="adm-diamond-amt" type="number" class="field-input" placeholder="輸入要發放的鑽石數量" />
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSendDiamondsToId()">確認發放鑽石</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">2. 更改禮物牆圖片 & 新增禮物欄位</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">2. 商城上架（自訂名稱、價格、圖示或圖片）</div>
+    <input id="adm-shop-name" class="field-input" placeholder="商品／禮物名稱" />
+    <input id="adm-shop-price" type="number" class="field-input" placeholder="價格（鑽石）" />
+    <input id="adm-shop-icon" class="field-input" placeholder="圖示 Emoji（例如 🎀 或 💎）" value="🎀" />
+    <select id="adm-shop-rel" class="field-select">
+      <option value="">一般商城禮物／道具</option>
+      <option value="lover">綁定關係戒指：戀人</option>
+      <option value="bestie">綁定關係戒指：摯友</option>
+      <option value="close">綁定關係戒指：閨蜜</option>
+      <option value="parent">綁定關係戒指：親子</option>
+      <option value="mentor">綁定關係戒指：師徒</option>
+    </select>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">可選填：從相簿上傳商品圖片</div>
+    <input type="file" accept="image/*" class="field-input" onchange="adminStageShopImg(event)" />
+    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminAddShopItem()">＋ 上架至商城</button>
+
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">3. 更改親密關係圖示（從相簿上傳）</div>
+    <select id="adm-rel-sel" class="field-select">${relOpts}</select>
+    <input type="file" accept="image/*" class="field-input" onchange="adminUploadRelImg(event)" />
+
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">4. 更改禮物牆圖片 & 新增禮物欄位</div>
     <select id="adm-gift-select" class="field-select">${giftOpts}</select>
     <input type="file" accept="image/*" class="field-input" onchange="adminUploadGiftImg(event)" />
     <input id="adm-new-gift-name" class="field-input" placeholder="新禮物名稱" />
     <input id="adm-new-gift-price" type="number" class="field-input" placeholder="禮物鑽石價格" />
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminAddGiftSlot()">＋ 新增禮物欄位</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">3. 新增盲盒 & 自訂盲盒抽獎機率</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">5. 新增盲盒 & 自訂盲盒抽獎機率</div>
     <input id="adm-new-box-name" class="field-input" placeholder="新盲盒名稱" />
     <input id="adm-new-box-price" type="number" class="field-input" placeholder="盲盒單抽鑽石價格" />
     <button class="primary-btn" style="margin-bottom:8px;" onclick="adminAddBlindBox()">＋ 新增盲盒</button>
@@ -1836,21 +2240,61 @@ function openAdminPanel() {
     <div id="adm-box-prob-rows" style="margin-bottom:6px;"></div>
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveBoxProbs()">儲存盲盒機率</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">4. 更改爵位圖標圖片與自訂特權</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">6. 更改爵位圖標圖片與自訂特權</div>
     <select id="adm-nob-select" class="field-select">${nobOpts}</select>
     <input type="file" accept="image/*" class="field-input" onchange="adminUploadNobImg(event)" />
     <input id="adm-nob-perk-inp" class="field-input" placeholder="輸入該爵位自訂特權說明" />
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveNobPerk()">儲存爵位特權</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">5. 企鵝的麻吉 8 格各自權重機率</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">7. 企鵝的麻吉 8 格各自權重機率</div>
     <div style="margin-bottom:6px;">${animalInputs}</div>
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSaveAnimalWeights()">儲存轉盤 8 格機率</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">6. 雲端同步網址（選填）</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">8. 雲端同步網址（選填）</div>
     <input id="adm-cloud-url" class="field-input" value="${state.cloudUrl || ''}" placeholder="https://xxx-default-rtdb.firebaseio.com" />
     <button class="primary-btn" onclick="adminSaveCloud()">儲存同步設定</button>
   `);
   renderAdminBoxProbRows();
+}
+
+let _stagedShopImg = '';
+function adminStageShopImg(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    _stagedShopImg = reader.result;
+    showToast('已載入商城商品圖片');
+  };
+  reader.readAsDataURL(file);
+}
+
+function adminAddShopItem() {
+  const name = document.getElementById('adm-shop-name').value.trim();
+  const price = Math.max(1, Number(document.getElementById('adm-shop-price').value || 100));
+  const icon = document.getElementById('adm-shop-icon').value.trim() || '🎁';
+  const relType = document.getElementById('adm-shop-rel').value || '';
+  if (!name) { showToast('請輸入商品名稱'); return; }
+  state.shopItems.push({
+    id: 'sh_' + Date.now(), name, icon, img: _stagedShopImg || '', price, relType
+  });
+  _stagedShopImg = '';
+  renderShop(); saveState(); openAdminPanel();
+  showToast(`已上架商城商品【${name}】`);
+}
+
+function adminUploadRelImg(e) {
+  const file = e.target.files && e.target.files[0];
+  const key = document.getElementById('adm-rel-sel').value;
+  if (!file || !key) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (!state.relIcons) state.relIcons = {};
+    state.relIcons[key] = reader.result;
+    saveState();
+    showToast('已更新親密關係圖示');
+  };
+  reader.readAsDataURL(file);
 }
 
 function renderAdminBoxProbRows() {
@@ -1885,9 +2329,8 @@ function adminSendDiamondsToId() {
   if (targetId === state.user.id) {
     state.user.diamonds += amt;
     renderProfile();
-  } else {
-    state.playerBalances[targetId] = (state.playerBalances[targetId] || 0) + amt;
-    if (state.accounts[targetId]) state.accounts[targetId].diamonds = (state.accounts[targetId].diamonds || 0) + amt;
+  } else if (state.accounts[targetId]) {
+    state.accounts[targetId].diamonds = (state.accounts[targetId].diamonds || 0) + amt;
   }
   saveState();
   showToast(`已向 ID:${targetId} 發放 ${formatNum(amt)} 鑽石！`);
@@ -1984,11 +2427,13 @@ function renderAll() {
   renderProfile();
   renderMics();
   renderChats();
-  toggleBoxMenu(state.boxMenuOpen);
+  document.getElementById('box-launcher-card').style.display = state.boxMenuOpen ? 'none' : 'block';
+  document.getElementById('box-expanded-card').style.display = state.boxMenuOpen ? 'block' : 'none';
   renderMajiMenuState();
   renderWheel();
   renderLeaderboard();
   renderBlindBoxes();
+  renderShop();
   renderGifts();
   renderNobility();
   renderRooms();
