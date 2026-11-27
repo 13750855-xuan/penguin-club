@@ -88,12 +88,36 @@
     display: flex; flex-direction: column; overflow: hidden;
   }
 
+  /* #5 & #9: 未登入閘門與無預設 ID */
+  #auth-gate-screen {
+    position: fixed; inset: 0; z-index: 160;
+    background: radial-gradient(circle at 50% 30%, #3730a3 0%, #141233 60%, #070614 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; overflow-y: auto;
+  }
+  #auth-gate-screen.logged-in { display: none; }
+  .auth-card {
+    width: 100%; max-width: 380px;
+    background: var(--glass-elevated); border: 1px solid var(--glass-border-strong);
+    border-radius: 20px; padding: 20px 18px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  }
+  .auth-logo { text-align: center; font-size: 48px; margin-bottom: 6px; }
+  .auth-title { text-align: center; font-size: 20px; font-weight: 900; color: #fef08a; letter-spacing: 1.5px; }
+  .auth-sub { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 4px; margin-bottom: 14px; }
+  .auth-mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .auth-mode-btn {
+    padding: 8px; border-radius: 10px; border: 1px solid var(--glass-border);
+    background: var(--card-sub); color: var(--text-sub); font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .auth-mode-btn.active { background: var(--accent-grad); color: #fff; border-color: transparent; }
+
   #splash-screen {
     position: fixed; inset: 0; z-index: 140;
     background: radial-gradient(circle at 50% 35%, #3730a3 0%, #141233 60%, #070614 100%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
     padding: 24px; text-align: center; transition: opacity 0.35s ease, visibility 0.35s ease;
   }
+  #splash-screen.show { display: flex; }
   #splash-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
   .splash-penguin {
     font-size: 74px; filter: drop-shadow(0 12px 28px rgba(139, 92, 246, 0.65));
@@ -180,6 +204,7 @@
   }
   .mini-chip.gold { background: var(--gold-soft); border-color: var(--gold-hi); color: var(--gold-hi); }
   .mini-chip.starred { background: rgba(251, 191, 36, 0.24); border-color: #facc15; color: #fef08a; }
+  .mini-chip.muted-on { background: rgba(148, 163, 184, 0.22); border-color: #94a3b8; color: #e2e8f0; }
   .lvl-line { display: flex; align-items: center; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
   .lvl-badge {
     font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
@@ -349,7 +374,12 @@
     background: var(--card-sub); border: 1px solid var(--glass-border);
     border-radius: 12px; padding: 9px 10px;
   }
-  .section-title { font-size: 13px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .official-notice-card {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(139, 92, 246, 0.18));
+    border: 1.5px solid var(--gold-hi);
+    border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
+  }
+  .section-title { font-size: 13px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
 
   .hp-cover {
     width: 100%; height: 116px; border-radius: 14px; overflow: hidden;
@@ -422,12 +452,19 @@
   }
   .nav-btn {
     border: none; background: transparent; color: var(--text-muted);
-    border-radius: 10px; padding: 6px 1px;
+    border-radius: 10px; padding: 6px 1px; position: relative;
     display: flex; flex-direction: column; align-items: center; gap: 2px;
     font-size: 9px; font-weight: 700; cursor: pointer;
   }
   .nav-btn.active { background: var(--accent-grad); color: #fff; }
   .nav-ico { font-size: 15px; line-height: 1.1; }
+  .nav-unread-dot {
+    position: absolute; top: 3px; right: 6px;
+    min-width: 14px; height: 14px; padding: 0 3px; border-radius: 999px;
+    background: #f43f5e; color: #fff; font-size: 9px; font-weight: 900;
+    display: none; align-items: center; justify-content: center;
+  }
+  .nav-unread-dot.show { display: inline-flex; }
 
   .modal-mask {
     position: fixed; inset: 0; background: rgba(4, 4, 14, 0.82);
@@ -447,7 +484,8 @@
     position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.96); border: 1px solid var(--gold-hi);
     color: #fef08a; padding: 7px 14px; border-radius: 999px;
-    font-size: 11px; font-weight: 800; z-index: 150; display: none; white-space: nowrap;
+    font-size: 11px; font-weight: 800; z-index: 170; display: none; max-width: 90vw;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .toast.show { display: block; }
 
@@ -470,6 +508,28 @@
 <div class="app-shell">
   <div id="toast" class="toast"></div>
 
+  <!-- #5 & #9: 未登入閘門（不顯示任何預設 ID，需自行註冊或登入） -->
+  <div id="auth-gate-screen">
+    <div class="auth-card">
+      <div class="auth-logo">🐧</div>
+      <div class="auth-title">企鵝的麻吉</div>
+      <div class="auth-sub">請先註冊新帳號或登入你的帳號以進入樂園</div>
+      <div class="auth-mode-row">
+        <button id="auth-tab-login" class="auth-mode-btn active" onclick="switchAuthMode('login')">帳號登入</button>
+        <button id="auth-tab-register" class="auth-mode-btn" onclick="switchAuthMode('register')">註冊新帳號</button>
+      </div>
+      <div id="auth-nick-wrap" style="display:none;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">自訂暱稱</div>
+        <input id="auth-nick-inp" class="field-input" placeholder="輸入你的暱稱" />
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號 ID（最多 8 碼）</div>
+      <input id="auth-id-inp" class="field-input" maxlength="8" placeholder="請自行輸入帳號 ID" />
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號密碼</div>
+      <input id="auth-pwd-inp" type="password" class="field-input" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')submitAuthGate()" />
+      <button id="auth-submit-btn" class="primary-btn" onclick="submitAuthGate()">立即登入</button>
+    </div>
+  </div>
+
   <div id="splash-screen">
     <div class="splash-penguin">🐧</div>
     <div class="splash-title">歡迎來到企鵝</div>
@@ -486,13 +546,14 @@
           <span id="role-badge" class="role-pill" onclick="openAdminGate()">會員</span>
         </div>
         <div class="brand-sub">
-          <span id="user-id-label">ID:100001</span>
+          <span id="user-id-label">未登入</span>
           <span id="sync-status-label"><i id="sync-dot" class="sync-dot"></i> Firebase 即時連線中</span>
         </div>
       </div>
     </div>
     <div class="top-actions">
       <button class="pill-btn" onclick="openSwitchAccountModal()">🔄 切號</button>
+      <button class="pill-btn" onclick="logoutToGate()">登出</button>
       <button class="pill-btn" onclick="toggleTheme()">🎨 換色</button>
     </div>
   </header>
@@ -509,19 +570,19 @@
           <div class="avatar-wrap" id="my-avatar-box" onclick="openPlayerHomepage(state.user.id)">🐧</div>
           <div class="profile-mid">
             <div class="name-line">
-              <span class="user-nick" id="my-nick-display" onclick="openPlayerHomepage(state.user.id)">企鵝小萌主</span>
+              <span class="user-nick" id="my-nick-display" onclick="openPlayerHomepage(state.user.id)"></span>
               <button class="mini-chip" onclick="openProfileModal()">🪪 帳號/ID</button>
               <button class="mini-chip" onclick="openBackpackModal()">🎒 背包 <span id="bag-count-badge">0</span></button>
             </div>
             <div class="lvl-line">
               <button class="mini-chip gold" id="my-nobility-chip" onclick="switchTab('nobility')">👑 開通爵位</button>
-              <span class="lvl-badge" id="wealth-lvl-badge" onclick="openLevelProgressModal('wealth')">💎 Lv.1</span>
-              <span class="lvl-badge" id="charm-lvl-badge" onclick="openLevelProgressModal('charm')">🌹 Lv.1</span>
+              <span class="lvl-badge" id="wealth-lvl-badge" onclick="openLevelProgressModal('wealth')">💎 Lv.0</span>
+              <span class="lvl-badge" id="charm-lvl-badge" onclick="openLevelProgressModal('charm')">🌹 Lv.0</span>
             </div>
           </div>
           <div class="diamond-box">
             <div class="diamond-lbl">我的鑽石</div>
-            <div class="diamond-val" id="my-diamonds-display">500,000</div>
+            <div class="diamond-val" id="my-diamonds-display">0</div>
           </div>
         </div>
       </div>
@@ -552,7 +613,7 @@
         <div class="launcher-bar">
           <div>
             <div style="font-size:13px;font-weight:900;">🐧 企鵝的麻吉 · 娛樂選單</div>
-            <div style="font-size:10px;color:var(--text-muted);">點選進入轉盤對戰或查看全服玩家排行榜</div>
+            <div style="font-size:10px;color:var(--text-muted);">點選進入轉盤對戰或查看全服玩家財富榜</div>
           </div>
           <button class="mini-chip gold" onclick="enterMajiMenu()">🎮 進入選單</button>
         </div>
@@ -565,7 +626,7 @@
         </div>
         <div class="sub-tab-row">
           <button class="sub-tab-btn active" id="subtab-wheel-btn" onclick="switchMajiSubTab('wheel')">🎡 海洋轉盤</button>
-          <button class="sub-tab-btn" id="subtab-rank-btn" onclick="switchMajiSubTab('rank')">🏆 全服排行榜</button>
+          <button class="sub-tab-btn" id="subtab-rank-btn" onclick="switchMajiSubTab('rank')">🏆 財富排行榜</button>
         </div>
 
         <div id="maji-sub-wheel">
@@ -602,7 +663,7 @@
         </div>
 
         <div id="maji-sub-rank" style="display:none;">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">全服所有玩家累積贏鑽排行榜（最多 10 名，點頭像可看主頁）</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">全服財富榜（僅統計送禮給任一玩家含自己，麻吉轉盤贏鑽不計入）</div>
           <div id="leaderboard-list" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
       </div>
@@ -623,13 +684,24 @@
       </div>
     </section>
 
+    <!-- #6, #7, #8: 語音大廳預設收合、點開進入房間才顯示、單人麥位、進房公頻播報 -->
     <section id="panel-rooms" class="tab-panel">
-      <div class="glass-card">
+      <div class="glass-card" id="voice-lobby-launcher-card">
+        <div class="launcher-bar">
+          <div>
+            <div style="font-size:13px;font-weight:900;">🎙️ 語音大廳 · 收合中</div>
+            <div style="font-size:10px;color:var(--text-muted);">點選下方「進入房間」展開語音房間畫面與麥位</div>
+          </div>
+          <button class="mini-chip gold" onclick="enterDefaultVoiceLobby()">🚪 進入房間</button>
+        </div>
+      </div>
+
+      <div class="glass-card" id="active-room-card" style="display:none;">
         <div class="room-header">
-          <div class="room-name">🌊 語音大廳 · <span id="current-room-title">星河海洋大廳</span></div>
-          <div style="display:flex;gap:5px;">
+          <div class="room-name">🌊 語音房間 · <span id="current-room-title">星河海洋大廳</span></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
             <button class="mini-chip" onclick="openChatBgModal()">🖼️ 聊室背景</button>
-            <button class="mini-chip" onclick="triggerWelcomeBanner()">✨ 進房播報</button>
+            <button class="mini-chip" onclick="leaveCurrentRoomToLobby()">收合/離開</button>
           </div>
         </div>
         <div class="mic-grid" id="mic-grid"></div>
@@ -638,7 +710,7 @@
         <div class="chat-box" id="chat-box"></div>
         <div class="chat-input-row">
           <button id="mic-toggle-btn" class="mic-toggle-btn" onclick="toggleMicMute()">🎙️ 開麥</button>
-          <input id="chat-input" class="chat-input" placeholder="在語音大廳聊天室發送訊息..." onkeydown="if(event.key==='Enter')sendChat()" />
+          <input id="chat-input" class="chat-input" placeholder="在語音房間公頻發送訊息..." onkeydown="if(event.key==='Enter')sendChat()" />
           <button class="send-btn" onclick="sendChat()">發送</button>
         </div>
       </div>
@@ -646,18 +718,46 @@
       <div class="glass-card">
         <div class="section-title">
           <span>⭐ 收藏的語音房間</span>
-          <button class="mini-chip gold" onclick="createPrivateRoom()">＋ 建立房間</button>
+          <div style="display:flex;gap:5px;">
+            <button class="mini-chip" id="toggle-room-list-btn" onclick="toggleRoomListExpanded()">展開房間</button>
+            <button class="mini-chip gold" onclick="createPrivateRoom()">＋ 建立房間</button>
+          </div>
         </div>
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">此區僅顯示已收藏的語音房間；房主擁有改名、上鎖與踢人權限。</div>
-        <div id="room-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="room-list" style="display:none;flex-direction:column;gap:8px;"></div>
       </div>
     </section>
 
+    <!-- #1, #2, #3, #4, #12, #13: 好友確認、官方通知置頂、免打擾、不顯示ID、未讀提示 -->
     <section id="panel-friends" class="tab-panel">
       <div class="glass-card">
         <div class="section-title">
-          <span>👥 好友與私人聊天室</span>
-          <button class="mini-chip" onclick="addDemoFriend()">＋ 搜尋ID加好友</button>
+          <span>📣 官方通知（置頂）</span>
+          <button class="mini-chip" id="dnd-official-btn" onclick="toggleDnd('official')">🔔 通知中</button>
+        </div>
+        <div class="official-notice-card" onclick="openOfficialNoticeModal()" style="cursor:pointer;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+            <div style="font-size:12px;font-weight:900;color:var(--gold-hi);">📢 官方通知中心 <span id="official-unread-pill" class="mini-chip gold" style="display:none;">0 則未讀</span></div>
+            <span class="mini-chip">查看全部</span>
+          </div>
+          <div id="official-latest-preview" style="font-size:11px;color:var(--text-sub);margin-top:5px;line-height:1.4;">
+            尚無官方通知
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="section-title">
+          <span>💌 好友申請待確認</span>
+          <span id="friend-req-count" style="font-size:11px;color:var(--gold-hi);">0</span>
+        </div>
+        <div id="friend-requests-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+
+        <div class="section-title">
+          <span>👥 好友聊天室</span>
+          <div style="display:flex;gap:5px;">
+            <button class="mini-chip" id="dnd-friends-btn" onclick="toggleDnd('friends')">🔔 聊天免打擾：關</button>
+            <button class="mini-chip" onclick="addDemoFriend()">＋ 加好友</button>
+          </div>
         </div>
         <div id="friend-list" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
@@ -666,7 +766,7 @@
     <section id="panel-gifts" class="tab-panel">
       <div class="glass-card">
         <div class="section-title"><span>🎁 夢幻海洋禮物牆</span></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">點擊禮物立即送出並點亮主頁禮物圖標，同步增加財富與🌹魅力積分</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">點擊禮物可送給好友或自己（計入財富榜與🌹魅力積分；收到 50 萬以上禮物將推送官方通知）</div>
         <div class="gift-grid" id="gift-grid"></div>
       </div>
     </section>
@@ -697,7 +797,10 @@
     <button class="nav-btn" data-tab="homepage" onclick="openPlayerHomepage(state.user.id)"><span class="nav-ico">🪪</span>主頁</button>
     <button class="nav-btn" data-tab="shop" onclick="switchTab('shop')"><span class="nav-ico">🛍️</span>商城</button>
     <button class="nav-btn" data-tab="rooms" onclick="switchTab('rooms')"><span class="nav-ico">🎙️</span>語音房</button>
-    <button class="nav-btn" data-tab="friends" onclick="switchTab('friends')"><span class="nav-ico">👥</span>好友</button>
+    <button class="nav-btn" data-tab="friends" onclick="switchTab('friends')">
+      <span id="nav-friends-badge" class="nav-unread-dot">0</span>
+      <span class="nav-ico">👥</span>好友
+    </button>
     <button class="nav-btn" data-tab="gifts" onclick="switchTab('gifts')"><span class="nav-ico">🎁</span>禮物</button>
     <button class="nav-btn" data-tab="nobility" onclick="switchTab('nobility')"><span class="nav-ico">👑</span>爵位</button>
   </nav>
@@ -715,8 +818,8 @@
 
 <script>
 const DEFAULT_FIREBASE_URL = 'https://penguin-club-c1401-default-rtdb.firebaseio.com';
-const STORAGE_KEY = 'penguin_club_v12_1_100001';
-const SYNC_CHANNEL = 'penguin_club_realtime_sync_v12_1';
+const STORAGE_KEY = 'penguin_club_v13_0';
+const SYNC_CHANNEL = 'penguin_club_realtime_sync_v13_0';
 const ADMIN_ONLY_ID = '100001';
 const ADMIN_ONLY_PWD = '8888';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(SYNC_CHANNEL) : null;
@@ -740,7 +843,7 @@ const DEFAULT_GIFTS = [
   { id: 'g5', name: '水晶貝殼', icon: '🐚', img: '', price: 1314 },
   { id: 'g6', name: '星河鯨落', icon: '🐳', img: '', price: 5200 },
   { id: 'g7', name: '極光城堡', icon: '🏰', img: '', price: 33440 },
-  { id: 'g8', name: '深海王冠', icon: '👑', img: '', price: 188888 },
+  { id: 'g8', name: '深海王冠', icon: '👑', img: '', price: 500000 },
   { id: 'g9', name: '宇宙企鵝艦隊', icon: '🚀', img: '', price: 1000000 }
 ];
 
@@ -871,16 +974,44 @@ function cloneSnapshot(obj) {
   return JSON.parse(JSON.stringify(obj || {}));
 }
 
+function createEmptyUserRecord(id = '', nick = '', password = '') {
+  const nowTs = Date.now();
+  return {
+    id,
+    password,
+    nick,
+    avatar: '🐧',
+    avatarImg: '',
+    coverImg: '',
+    customTitle: '',
+    diamonds: 500000,
+    wealthExp: 0,
+    charmExp: 0,
+    giftWealth: 0,
+    nobility: '',
+    litGifts: [],
+    relationships: [],
+    backpack: [],
+    currentBets: {},
+    lastBets: {},
+    specialBets: { fish: 0, boss: 0 },
+    lastSpecialBets: { fish: 0, boss: 0 },
+    friends: [],
+    friendRequests: [],
+    dndFriends: false,
+    dndOfficial: false,
+    unreadFriendsCount: 0,
+    unreadOfficialCount: 0,
+    lastSeen: nowTs,
+    updatedAt: nowTs
+  };
+}
+
 function createDefaultState() {
   const nowTs = Date.now();
-  const u1 = {
-    id: '100001', password: '', nick: '企鵝小萌主', avatar: '🐧', avatarImg: '', coverImg: '',
-    customTitle: '', diamonds: 500000, wealthExp: 10000, charmExp: 10000, totalWin: 12000,
-    nobility: '', litGifts: [], relationships: [], backpack: [], currentBets: {}, lastBets: {},
-    specialBets: { fish: 0, boss: 0 }, lastSpecialBets: { fish: 0, boss: 0 }, loggedIn: true,
-    lastSeen: nowTs
-  };
   return {
+    isAuthenticated: false,
+    authMode: 'login',
     theme: 'bluepurple',
     chatBgId: 'deep-ocean',
     pmBgId: 'deep-ocean',
@@ -888,14 +1019,16 @@ function createDefaultState() {
     boxMenuOpen: false,
     majiExpanded: false,
     majiSubTab: 'wheel',
-    viewingPlayerId: '100001',
+    roomEntered: false,
+    roomListExpanded: false,
+    viewingPlayerId: '',
     activePmFriendIdx: null,
-    loggedInIds: ['100001'],
-    user: cloneSnapshot(u1),
-    accounts: { '100001': cloneSnapshot(u1) },
-    playerVault: { '100001': cloneSnapshot(u1) },
-    playersDirectory: { '100001': cloneSnapshot(u1) },
-    leaderboard: [{ id: '100001', nick: '企鵝小萌主', win: 12000 }],
+    loggedInIds: [],
+    user: createEmptyUserRecord('', '', ''),
+    accounts: {},
+    playerVault: {},
+    playersDirectory: {},
+    leaderboard: [],
     backpack: [],
     gifts: JSON.parse(JSON.stringify(DEFAULT_GIFTS)),
     nobilityTiers: JSON.parse(JSON.stringify(DEFAULT_NOBILITY)),
@@ -919,14 +1052,20 @@ function createDefaultState() {
     currentRoom: '星河海洋大廳',
     currentRoomOwnerId: 'official',
     rooms: [
-      { id: 'r_official', name: '星河海洋大廳', ownerId: 'official', host: '企鵝官方', online: 1, isOfficial: true, password: '' },
-      { id: 'r_100001', name: '企鵝小萌主的專屬語音房', ownerId: '100001', host: '企鵝小萌主', online: 1, isOfficial: false, password: '' }
+      { id: 'r_official', name: '星河海洋大廳', ownerId: 'official', host: '企鵝官方', online: 1, isOfficial: true, password: '' }
     ],
-    favoriteRoomIds: ['r_official', 'r_100001'],
+    favoriteRoomIds: ['r_official'],
     friends: [],
-    chats: [
-      { id: 'init_1', tag: '系統', nick: '海洋精靈', playerId: '100001', text: '歡迎來到《企鵝的麻吉》，已連線 Firebase 資料庫即時同步！', ts: nowTs - 7200000 }
+    friendRequests: [],
+    officialNotices: [
+      {
+        id: 'off_init_1',
+        title: '系統公告',
+        text: '歡迎來到《企鵝的麻吉》！收到 50 萬以上禮物或管理員上架新商品時，將於此處通知全平台玩家。',
+        ts: nowTs
+      }
     ],
+    chats: [],
     jackpotBanner: null,
     adminLogs: [],
     cloudUrl: DEFAULT_FIREBASE_URL
@@ -956,31 +1095,32 @@ function updateSyncStatusBadge() {
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return createDefaultState();
-    const parsed = JSON.parse(raw);
     const base = createDefaultState();
+    if (!raw) return base;
+    const parsed = JSON.parse(raw);
     const m = Object.assign(base, parsed);
     if (!m.cloudUrl) m.cloudUrl = DEFAULT_FIREBASE_URL;
-    m.user = Object.assign(cloneSnapshot(base.user), parsed.user || {});
+    m.user = Object.assign(createEmptyUserRecord('', '', ''), parsed.user || {});
+    if (!m.isAuthenticated || !m.user.id) {
+      m.isAuthenticated = false;
+      m.user = createEmptyUserRecord('', '', '');
+      m.isAdmin = false;
+      m.roomEntered = false;
+    }
     if (!Array.isArray(m.user.litGifts)) m.user.litGifts = [];
     if (!Array.isArray(m.user.relationships)) m.user.relationships = [];
     if (!Array.isArray(m.backpack)) m.backpack = Array.isArray(m.user.backpack) ? cloneSnapshot(m.user.backpack) : [];
+    if (!Array.isArray(m.friends)) m.friends = [];
+    if (!Array.isArray(m.friendRequests)) m.friendRequests = [];
+    if (!Array.isArray(m.officialNotices) || !m.officialNotices.length) m.officialNotices = base.officialNotices;
     if (!m.playerVault || typeof m.playerVault !== 'object') m.playerVault = {};
     if (!m.accounts || typeof m.accounts !== 'object') m.accounts = {};
     if (!m.playersDirectory || typeof m.playersDirectory !== 'object') m.playersDirectory = {};
-    if (!Array.isArray(m.loggedInIds)) m.loggedInIds = [m.user.id];
-    if (!m.loggedInIds.includes(m.user.id)) m.loggedInIds.push(m.user.id);
-
     Object.keys(m.playerVault).forEach(pid => {
       const rec = m.playerVault[pid];
       if (!m.accounts[pid]) m.accounts[pid] = cloneSnapshot(rec);
       if (!m.playersDirectory[pid]) m.playersDirectory[pid] = cloneSnapshot(rec);
     });
-    Object.keys(m.accounts).forEach(pid => {
-      if (!m.playerVault[pid]) m.playerVault[pid] = cloneSnapshot(m.accounts[pid]);
-      if (!m.playersDirectory[pid]) m.playersDirectory[pid] = cloneSnapshot(m.accounts[pid]);
-    });
-
     if (m.user.id !== ADMIN_ONLY_ID) m.isAdmin = false;
     if (!m.specialGroupProbs || typeof m.specialGroupProbs !== 'object') m.specialGroupProbs = { fish: 18, boss: 10 };
     if (!m.specialBets || typeof m.specialBets !== 'object') m.specialBets = { fish: 0, boss: 0 };
@@ -991,16 +1131,91 @@ function loadState() {
     if (!Array.isArray(m.blindboxes) || !m.blindboxes.length) m.blindboxes = JSON.parse(JSON.stringify(DEFAULT_BLINDBOXES));
     if (!Array.isArray(m.shopItems) || !m.shopItems.length) m.shopItems = JSON.parse(JSON.stringify(DEFAULT_SHOP_ITEMS));
     if (!m.relIcons || typeof m.relIcons !== 'object') m.relIcons = base.relIcons;
-    if (!Array.isArray(m.leaderboard)) m.leaderboard = base.leaderboard;
+    if (!Array.isArray(m.leaderboard)) m.leaderboard = [];
     if (!Array.isArray(m.rooms) || !m.rooms.length) m.rooms = base.rooms;
     if (!Array.isArray(m.favoriteRoomIds)) m.favoriteRoomIds = m.rooms.map(r => r.id);
     if (!m.currentRoomOwnerId) m.currentRoomOwnerId = 'official';
     if (!m.pmBgId) m.pmBgId = m.chatBgId || 'deep-ocean';
-    if (!Array.isArray(m.friends)) m.friends = [];
     return m;
   } catch (e) {
     return createDefaultState();
   }
+}
+
+/* #5 & #9: 登入 / 註冊控制 */
+function switchAuthMode(mode) {
+  state.authMode = mode;
+  document.getElementById('auth-tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('auth-tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-nick-wrap').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-submit-btn').textContent = mode === 'register' ? '註冊並進入' : '立即登入';
+}
+
+function submitAuthGate() {
+  const id = document.getElementById('auth-id-inp').value.trim();
+  const pwd = document.getElementById('auth-pwd-inp').value.trim();
+  const nickInp = document.getElementById('auth-nick-inp').value.trim();
+  if (!id || id.length > 8) { showToast('請輸入 1～8 碼帳號 ID'); return; }
+  if (!pwd) { showToast('請輸入密碼'); return; }
+
+  const existing = state.playerVault[id] || state.accounts[id];
+  if (state.authMode === 'register') {
+    if (existing) { showToast('此 ID 已被註冊，請改用登入或輸入其他 ID'); return; }
+    const fresh = createEmptyUserRecord(id, nickInp || ('玩家_' + id), pwd);
+    state.user = fresh;
+    state.backpack = [];
+    state.friends = [];
+    state.friendRequests = [];
+    state.currentBets = {};
+    state.lastBets = {};
+    state.specialBets = { fish: 0, boss: 0 };
+    state.lastSpecialBets = { fish: 0, boss: 0 };
+  } else {
+    if (!existing) { showToast('查無此帳號 ID，請先切換為「註冊新帳號」'); return; }
+    if (existing.password && existing.password !== pwd) { showToast('密碼錯誤'); return; }
+    state.user = Object.assign(createEmptyUserRecord(id, existing.nick, pwd), cloneSnapshot(existing), { id, password: pwd });
+    state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
+    state.friends = Array.isArray(state.user.friends) ? cloneSnapshot(state.user.friends) : [];
+    state.friendRequests = Array.isArray(state.user.friendRequests) ? cloneSnapshot(state.user.friendRequests) : [];
+    state.currentBets = cloneSnapshot(state.user.currentBets || {});
+    state.lastBets = cloneSnapshot(state.user.lastBets || {});
+    state.specialBets = cloneSnapshot(state.user.specialBets || { fish: 0, boss: 0 });
+    state.lastSpecialBets = cloneSnapshot(state.user.lastSpecialBets || { fish: 0, boss: 0 });
+  }
+
+  if (state.user.id !== ADMIN_ONLY_ID) state.isAdmin = false;
+  state.isAuthenticated = true;
+  if (!Array.isArray(state.loggedInIds)) state.loggedInIds = [];
+  if (!state.loggedInIds.includes(id)) state.loggedInIds.push(id);
+
+  document.getElementById('auth-gate-screen').classList.add('logged-in');
+  document.getElementById('splash-screen').classList.add('show');
+  document.getElementById('splash-screen').classList.remove('hide');
+
+  syncAllPlayerData();
+  syncUserToLeaderboard();
+  renderAll();
+  saveState(true);
+  if (getFirebaseRootUrl()) pullCloudOnce();
+  showToast(`歡迎 ${state.user.nick}`);
+}
+
+function logoutToGate() {
+  state.mics.forEach(m => {
+    if (m.isSelf || m.id === state.user.id) {
+      m.id = ''; m.nick = ''; m.avatar = ''; m.avatarImg = ''; m.speaking = false; m.isSelf = false;
+    }
+  });
+  syncAllPlayerData();
+  state.isAuthenticated = false;
+  state.isAdmin = false;
+  state.roomEntered = false;
+  state.user = createEmptyUserRecord('', '', '');
+  document.getElementById('auth-id-inp').value = '';
+  document.getElementById('auth-pwd-inp').value = '';
+  document.getElementById('auth-gate-screen').classList.remove('logged-in');
+  document.getElementById('splash-screen').classList.remove('show');
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 function recordAdminLog(actionText) {
@@ -1015,6 +1230,7 @@ function recordAdminLog(actionText) {
 }
 
 function ensureSelfVoiceRoom() {
+  if (!state.isAuthenticated || !state.user.id) return;
   const exists = state.rooms.some(r => r.ownerId === state.user.id);
   if (!exists) {
     const newId = 'r_' + state.user.id;
@@ -1032,6 +1248,7 @@ function ensureSelfVoiceRoom() {
 }
 
 function syncAllPlayerData() {
+  if (!state.isAuthenticated || !state.user.id) return;
   ensureSelfVoiceRoom();
   if (!Array.isArray(state.loggedInIds)) state.loggedInIds = [];
   if (!state.loggedInIds.includes(state.user.id)) state.loggedInIds.push(state.user.id);
@@ -1051,11 +1268,17 @@ function syncAllPlayerData() {
     diamonds: Number(state.user.diamonds || 0),
     wealthExp: Number(state.user.wealthExp || 0),
     charmExp: Number(state.user.charmExp || 0),
-    totalWin: Number(state.user.totalWin || 0),
+    giftWealth: Number(state.user.giftWealth || 0),
     nobility: state.user.nobility || '',
     litGifts: Array.isArray(state.user.litGifts) ? cloneSnapshot(state.user.litGifts) : [],
     relationships: Array.isArray(state.user.relationships) ? cloneSnapshot(state.user.relationships) : [],
     backpack: Array.isArray(state.backpack) ? cloneSnapshot(state.backpack) : [],
+    friends: Array.isArray(state.friends) ? cloneSnapshot(state.friends) : [],
+    friendRequests: Array.isArray(state.friendRequests) ? cloneSnapshot(state.friendRequests) : [],
+    dndFriends: Boolean(state.user.dndFriends),
+    dndOfficial: Boolean(state.user.dndOfficial),
+    unreadFriendsCount: Number(state.user.unreadFriendsCount || 0),
+    unreadOfficialCount: Number(state.user.unreadOfficialCount || 0),
     currentBets: cloneSnapshot(state.currentBets || {}),
     lastBets: cloneSnapshot(state.lastBets || {}),
     specialBets: cloneSnapshot(state.specialBets || { fish: 0, boss: 0 }),
@@ -1069,9 +1292,10 @@ function syncAllPlayerData() {
   state.playersDirectory[state.user.id] = cloneSnapshot(fullRecord);
 }
 
+/* #1 & #15: 即時同步與跨裝置推送 */
 async function pushCloudNodes() {
   const fbRoot = getFirebaseRootUrl();
-  if (!fbRoot || _cloudBusy) return;
+  if (!fbRoot || _cloudBusy || !state.isAuthenticated || !state.user.id) return;
   _cloudBusy = true;
   try {
     const uid = encodeURIComponent(state.user.id);
@@ -1081,6 +1305,7 @@ async function pushCloudNodes() {
       rooms: state.rooms,
       mics: state.mics,
       chats: state.chats.slice(-100),
+      officialNotices: state.officialNotices.slice(-60),
       jackpotBanner: state.jackpotBanner || null,
       history: state.history.slice(-50),
       roundIndex: state.roundIndex,
@@ -1090,15 +1315,16 @@ async function pushCloudNodes() {
       shopItems: state.shopItems,
       relIcons: state.relIcons,
       specialGroupProbs: state.specialGroupProbs,
-      adminLogs: (state.adminLogs || []).slice(0, 80)
+      adminLogs: (state.adminLogs || []).slice(0, 80),
+      configUpdatedAt: Date.now()
     };
-    await fetch(`${fbRoot}/penguin_club_v12.json`, {
+    await fetch(`${fbRoot}/penguin_club_v13.json`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sharedPayload)
     });
     if (curUserRec) {
-      await fetch(`${fbRoot}/penguin_club_v12/users/${uid}.json`, {
+      await fetch(`${fbRoot}/penguin_club_v13/users/${uid}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(curUserRec)
@@ -1118,12 +1344,46 @@ function mergeRemoteCloudData(remote) {
     Object.keys(remote.users).forEach(pid => {
       const rUser = remote.users[pid];
       if (!rUser || !rUser.id) return;
-      if (pid === state.user.id) {
+      if (state.isAuthenticated && pid === state.user.id) {
         const localUpdated = Number((state.playerVault[pid] && state.playerVault[pid].updatedAt) || 0);
         const remoteUpdated = Number(rUser.updatedAt || 0);
         if (remoteUpdated > localUpdated) {
-          state.user = Object.assign(cloneSnapshot(createDefaultState().user), cloneSnapshot(rUser));
+          const prevUnreadF = Number(state.user.unreadFriendsCount || 0);
+          const prevUnreadO = Number(state.user.unreadOfficialCount || 0);
+          const prevFriends = cloneSnapshot(state.friends || []);
+          state.user = Object.assign(createEmptyUserRecord(pid, '', ''), cloneSnapshot(rUser));
           state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
+          if (Array.isArray(rUser.friends)) {
+            const oldMap = new Map(prevFriends.map(f => [f.id, f]));
+            state.friends = rUser.friends.map(rf => {
+              const localF = oldMap.get(rf.id);
+              const rMsgs = Array.isArray(rf.messages) ? rf.messages : [];
+              const lMsgs = (localF && Array.isArray(localF.messages)) ? localF.messages : [];
+              if (rMsgs.length > lMsgs.length) {
+                const newest = rMsgs[rMsgs.length - 1];
+                if (newest && newest.senderId !== state.user.id) {
+                  notifyIncomingMessage('friend', newest.sender || rf.nick || '好友', newest.text || '傳來一則訊息');
+                }
+              }
+              const mergedMsgs = [];
+              const seen = new Set();
+              [...lMsgs, ...rMsgs].forEach(m => {
+                const k = m.id || `${m.senderId}_${m.ts}_${m.text}`;
+                if (!seen.has(k)) { seen.add(k); mergedMsgs.push(m); }
+              });
+              mergedMsgs.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+              return Object.assign({}, rf, { messages: mergedMsgs });
+            });
+          }
+          if (Array.isArray(rUser.friendRequests)) {
+            state.friendRequests = cloneSnapshot(rUser.friendRequests);
+          }
+          if (Number(rUser.unreadFriendsCount || 0) < prevUnreadF) {
+            state.user.unreadFriendsCount = Number(rUser.unreadFriendsCount || 0);
+          }
+          if (Number(rUser.unreadOfficialCount || 0) < prevUnreadO) {
+            state.user.unreadOfficialCount = Number(rUser.unreadOfficialCount || 0);
+          }
           changed = true;
         }
       } else {
@@ -1132,6 +1392,37 @@ function mergeRemoteCloudData(remote) {
           state.playerVault[pid] = cloneSnapshot(rUser);
           state.accounts[pid] = cloneSnapshot(rUser);
           state.playersDirectory[pid] = cloneSnapshot(rUser);
+          if (state.isAuthenticated && Array.isArray(rUser.friends)) {
+            const targetMe = rUser.friends.find(x => x.id === state.user.id);
+            if (targetMe && Array.isArray(targetMe.messages)) {
+              const myFriendIdx = state.friends.findIndex(f => f.id === pid);
+              if (myFriendIdx >= 0) {
+                const lf = state.friends[myFriendIdx];
+                const lMsgs = Array.isArray(lf.messages) ? lf.messages : [];
+                const rMsgs = targetMe.messages;
+                const seen = new Set(lMsgs.map(m => m.id || `${m.senderId}_${m.ts}_${m.text}`));
+                const newOnes = rMsgs.filter(m => !seen.has(m.id || `${m.senderId}_${m.ts}_${m.text}`));
+                if (newOnes.length > 0) {
+                  lf.messages = [...lMsgs, ...newOnes].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+                  const lastNew = newOnes[newOnes.length - 1];
+                  if (lastNew.senderId !== state.user.id) {
+                    notifyIncomingMessage('friend', rUser.nick || lastNew.sender || '好友', lastNew.text || '發送了一則訊息');
+                  }
+                  changed = true;
+                }
+              }
+            }
+          }
+          if (state.isAuthenticated && Array.isArray(rUser.friendRequests)) {
+            const reqForMe = rUser.friendRequests.filter(rq => rq.toId === state.user.id && rq.status === 'pending');
+            reqForMe.forEach(rq => {
+              if (!state.friendRequests.some(x => x.fromId === rq.fromId && x.status === 'pending') && !state.friends.some(f => f.id === rq.fromId)) {
+                state.friendRequests.push(cloneSnapshot(rq));
+                showToast(`${rq.fromNick} 申請加你為好友`);
+                changed = true;
+              }
+            });
+          }
           changed = true;
         }
       }
@@ -1139,8 +1430,7 @@ function mergeRemoteCloudData(remote) {
   }
 
   if (Array.isArray(remote.rooms) && remote.rooms.length) {
-    const strR = JSON.stringify(remote.rooms);
-    if (JSON.stringify(state.rooms) !== strR) {
+    if (JSON.stringify(state.rooms) !== JSON.stringify(remote.rooms)) {
       state.rooms = cloneSnapshot(remote.rooms);
       changed = true;
     }
@@ -1149,7 +1439,7 @@ function mergeRemoteCloudData(remote) {
   if (Array.isArray(remote.mics) && remote.mics.length === 8) {
     const mergedMics = remote.mics.map(m => {
       const copy = Object.assign({}, m);
-      copy.isSelf = copy.id === state.user.id;
+      copy.isSelf = Boolean(state.isAuthenticated && copy.id === state.user.id);
       return copy;
     });
     if (JSON.stringify(state.mics) !== JSON.stringify(mergedMics)) {
@@ -1169,22 +1459,34 @@ function mergeRemoteCloudData(remote) {
     }
   }
 
+  if (Array.isArray(remote.officialNotices) && remote.officialNotices.length) {
+    const map = new Map();
+    state.officialNotices.forEach(n => map.set(n.id || `${n.ts}_${n.text}`, n));
+    const beforeLen = map.size;
+    remote.officialNotices.forEach(n => map.set(n.id || `${n.ts}_${n.text}`, n));
+    const combined = Array.from(map.values()).sort((a, b) => (a.ts || 0) - (b.ts || 0)).slice(-60);
+    if (JSON.stringify(combined) !== JSON.stringify(state.officialNotices)) {
+      const newlyAdded = combined.slice(beforeLen);
+      state.officialNotices = combined;
+      if (state.isAuthenticated && newlyAdded.length > 0) {
+        const lastN = newlyAdded[newlyAdded.length - 1];
+        notifyIncomingMessage('official', '官方通知', lastN.text);
+      }
+      changed = true;
+    }
+  }
+
   if (remote.jackpotBanner && (!state.jackpotBanner || Number(remote.jackpotBanner.ts || 0) > Number(state.jackpotBanner.ts || 0))) {
     state.jackpotBanner = cloneSnapshot(remote.jackpotBanner);
     changed = true;
   }
 
-  if (Array.isArray(remote.history) && remote.history.length) {
-    if (JSON.stringify(remote.history) !== JSON.stringify(state.history)) {
-      state.history = cloneSnapshot(remote.history);
-      changed = true;
-    }
+  if (Array.isArray(remote.history) && remote.history.length && JSON.stringify(remote.history) !== JSON.stringify(state.history)) {
+    state.history = cloneSnapshot(remote.history); changed = true;
   }
   if (typeof remote.roundIndex === 'number' && remote.roundIndex > state.roundIndex) {
-    state.roundIndex = remote.roundIndex;
-    changed = true;
+    state.roundIndex = remote.roundIndex; changed = true;
   }
-
   if (Array.isArray(remote.gifts) && remote.gifts.length && JSON.stringify(remote.gifts) !== JSON.stringify(state.gifts)) {
     state.gifts = cloneSnapshot(remote.gifts); changed = true;
   }
@@ -1209,7 +1511,12 @@ function mergeRemoteCloudData(remote) {
 
   if (changed) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    renderAll();
+    if (state.isAuthenticated) {
+      renderAll();
+      if (state.activePmFriendIdx !== null && state.friends[state.activePmFriendIdx]) {
+        renderFullscreenPmBody(state.friends[state.activePmFriendIdx]);
+      }
+    }
   }
   return changed;
 }
@@ -1218,7 +1525,7 @@ async function pullCloudOnce() {
   const fbRoot = getFirebaseRootUrl();
   if (!fbRoot || _cloudBusy) return;
   try {
-    const res = await fetch(`${fbRoot}/penguin_club_v12.json`, { cache: 'no-store' });
+    const res = await fetch(`${fbRoot}/penguin_club_v13.json`, { cache: 'no-store' });
     if (!res.ok) return;
     const data = await res.json();
     if (data) mergeRemoteCloudData(data);
@@ -1231,7 +1538,7 @@ function saveState(pushCloud = true) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     updateSyncStatusBadge();
     if (bc) bc.postMessage({ type: 'SYNC_STATE', payload: state });
-    if (pushCloud && getFirebaseRootUrl()) {
+    if (pushCloud && getFirebaseRootUrl() && state.isAuthenticated) {
       pushCloudNodes();
     }
   } catch (e) {}
@@ -1239,19 +1546,10 @@ function saveState(pushCloud = true) {
 
 if (bc) {
   bc.onmessage = (ev) => {
-    if (ev.data && ev.data.type === 'SYNC_STATE' && ev.data.payload) {
+    if (ev.data && ev.data.type === 'SYNC_STATE' && ev.data.payload && !state.isSpinning) {
       const incoming = ev.data.payload;
-      if (!state.isSpinning) {
-        const keepId = state.user.id;
-        const keepCloudUrl = state.cloudUrl || DEFAULT_FIREBASE_URL;
-        state = Object.assign({}, state, incoming);
-        if (!state.cloudUrl) state.cloudUrl = keepCloudUrl;
-        if (state.playerVault && state.playerVault[keepId]) {
-          state.user = Object.assign(cloneSnapshot(createDefaultState().user), cloneSnapshot(state.playerVault[keepId]));
-          state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
-        }
-        if (state.user.id !== ADMIN_ONLY_ID) state.isAdmin = false;
-        renderAll();
+      if (incoming.configUpdatedAt || incoming.rooms || incoming.gifts || incoming.shopItems || incoming.blindboxes || incoming.nobilityTiers || incoming.specialGroupProbs || incoming.officialNotices || incoming.chats || incoming.mics) {
+        mergeRemoteCloudData(incoming);
       }
     }
   };
@@ -1261,14 +1559,15 @@ setInterval(() => {
   if (getFirebaseRootUrl()) {
     pullCloudOnce();
   }
-}, 2000);
+}, 1500);
 
 setInterval(() => {
+  if (!state.isAuthenticated || !state.user.id) return;
   syncAllPlayerData();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   if (getFirebaseRootUrl()) {
     const uid = encodeURIComponent(state.user.id);
-    fetch(`${getFirebaseRootUrl()}/penguin_club_v12/users/${uid}/lastSeen.json`, {
+    fetch(`${getFirebaseRootUrl()}/penguin_club_v13/users/${uid}/lastSeen.json`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(Date.now())
@@ -1277,6 +1576,7 @@ setInterval(() => {
 }, 10000);
 
 window.addEventListener('pagehide', () => {
+  if (!state.isAuthenticated || !state.user.id) return;
   state.mics.forEach(m => {
     if (m.isSelf || m.id === state.user.id) {
       m.id = ''; m.nick = ''; m.avatar = ''; m.avatarImg = ''; m.speaking = false; m.isSelf = false;
@@ -1286,8 +1586,11 @@ window.addEventListener('pagehide', () => {
 });
 
 function enterGameFromSplash() {
+  if (!state.isAuthenticated) {
+    document.getElementById('auth-gate-screen').classList.remove('logged-in');
+    return;
+  }
   document.getElementById('splash-screen').classList.add('hide');
-  triggerWelcomeBanner();
   if (getFirebaseRootUrl()) pullCloudOnce();
 }
 
@@ -1303,7 +1606,97 @@ function showToast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* #1 & #3 & #13: 訊息通知與免打擾控制 */
+function notifyIncomingMessage(channel, senderName, text) {
+  if (!state.isAuthenticated) return;
+  const isDnd = channel === 'official' ? Boolean(state.user.dndOfficial) : Boolean(state.user.dndFriends);
+  const isHidden = document.hidden || document.visibilityState === 'hidden';
+
+  if (channel === 'official') {
+    state.user.unreadOfficialCount = Number(state.user.unreadOfficialCount || 0) + 1;
+  } else {
+    state.user.unreadFriendsCount = Number(state.user.unreadFriendsCount || 0) + 1;
+  }
+  renderUnreadBadges();
+
+  if (isDnd && !isHidden) {
+    return;
+  }
+
+  const noticeText = channel === 'official'
+    ? `📣 官方通知：${text}`
+    : `💬 ${senderName} 發了一則訊息：${text}`;
+
+  showToast(noticeText);
+
+  if (isHidden && 'Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(channel === 'official' ? '企鵝官方通知' : `${senderName} 傳來訊息`, { body: text });
+    } catch (e) {}
+  }
+}
+
+function renderUnreadBadges() {
+  const uf = Number(state.user.unreadFriendsCount || 0);
+  const uo = Number(state.user.unreadOfficialCount || 0);
+  const totalUnread = uf + uo;
+  const navDot = document.getElementById('nav-friends-badge');
+  if (navDot) {
+    navDot.textContent = totalUnread > 99 ? '99+' : String(totalUnread);
+    navDot.classList.toggle('show', totalUnread > 0);
+  }
+  const offPill = document.getElementById('official-unread-pill');
+  if (offPill) {
+    offPill.textContent = `${uo} 則未讀`;
+    offPill.style.display = uo > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+function toggleDnd(kind) {
+  if (kind === 'official') {
+    state.user.dndOfficial = !state.user.dndOfficial;
+    showToast(state.user.dndOfficial ? '官方通知免打擾已開啟（僅後台或查看時通知）' : '已恢復官方通知即時提示');
+  } else {
+    state.user.dndFriends = !state.user.dndFriends;
+    showToast(state.user.dndFriends ? '好友聊天免打擾已開啟（僅後台或查看時通知）' : '已恢復好友訊息即時提示');
+  }
+  if ((state.user.dndOfficial || state.user.dndFriends) && 'Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {});
+  }
+  renderFriends();
+  saveState();
+}
+
+function pushOfficialNotice(title, text) {
+  state.officialNotices.push({
+    id: 'off_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    title: title || '官方通知',
+    text,
+    ts: Date.now()
+  });
+  if (state.officialNotices.length > 60) state.officialNotices.shift();
+  state.user.unreadOfficialCount = Number(state.user.unreadOfficialCount || 0) + 1;
+  renderFriends();
+  renderUnreadBadges();
+  if (!state.user.dndOfficial || document.hidden) {
+    showToast(`📣 官方通知：${text}`);
+  }
+}
+
+function openOfficialNoticeModal() {
+  state.user.unreadOfficialCount = 0;
+  renderUnreadBadges();
+  saveState();
+  const list = state.officialNotices.slice().reverse().map(n => `
+    <div class="list-item" style="margin-bottom:6px;flex-direction:column;align-items:flex-start;">
+      <div style="font-size:10px;color:var(--text-muted);">${formatDateTimeFull(n.ts)} · <b>${n.title}</b></div>
+      <div style="font-size:12px;margin-top:3px;">${n.text}</div>
+    </div>
+  `).join('');
+  openModal('📣 官方通知（置頂聊天室）', list || '<div style="font-size:12px;">尚無通知</div>');
 }
 
 function toggleTheme() {
@@ -1340,7 +1733,7 @@ function openChatBgModal() {
       <button class="mini-chip gold" onclick="setChatBg('${b.id}')">套用</button>
     </div>
   `).join('');
-  openModal('🖼️ 選擇語音大廳聊天室背景', items);
+  openModal('🖼️ 選擇語音房間聊天室背景', items);
 }
 
 function setChatBg(id) {
@@ -1348,7 +1741,7 @@ function setChatBg(id) {
   applyTheme();
   saveState();
   closeModal();
-  showToast('已更新語音大廳聊天背景');
+  showToast('已更新語音房間聊天背景');
 }
 
 function openPmBgModal() {
@@ -1390,12 +1783,24 @@ function triggerJackpotMarquee(text) {
 }
 
 function switchTab(tab) {
+  if (!state.isAuthenticated) {
+    document.getElementById('auth-gate-screen').classList.remove('logged-in');
+    return;
+  }
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const panel = document.getElementById('panel-' + tab);
   const btn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
   if (panel) panel.classList.add('active');
   if (btn) btn.classList.add('active');
+
+  if (tab === 'friends') {
+    state.user.unreadFriendsCount = 0;
+    state.user.unreadOfficialCount = 0;
+    renderUnreadBadges();
+    renderFriends();
+    saveState(false);
+  }
 }
 
 function getLevelColor(lvl) {
@@ -1425,7 +1830,7 @@ function renderMiniNobilityBadge(nob) {
 function checkMax666AndNotify(kind, info) {
   if (!info.isMax) return;
   const label = kind === 'wealth' ? '財富等級' : '🌹魅力等級';
-  const msg = `🌟 全服通知！恭喜【${state.user.nick}】(ID:${state.user.id}) ${label}直達最高 Lv.666！`;
+  const msg = `🌟 全服通知！恭喜【${state.user.nick}】${label}直達最高 Lv.666！`;
   addChat('全服666', '系統公告', msg);
   showToast(msg);
   if (!state.user.customTitle) {
@@ -1472,18 +1877,32 @@ function saveCustomTitleFromModal() {
   showToast('稱號已更新');
 }
 
+/* #10 & #11: 財富榜僅統計送禮給任一玩家（含自己），麻吉轉盤賺到的錢不計入財富榜 */
+function addGiftWealth(amount) {
+  const v = Math.max(0, Number(amount || 0));
+  if (v <= 0) return;
+  state.user.giftWealth = Number(state.user.giftWealth || 0) + v;
+  syncUserToLeaderboard();
+}
+
 function syncUserToLeaderboard() {
+  if (!state.isAuthenticated || !state.user.id) return;
   const allPlayers = Object.values(state.playerVault || {});
   const map = new Map();
   allPlayers.forEach(p => {
     if (!p || !p.id) return;
-    map.set(p.id, { id: p.id, nick: p.nick || ('玩家' + p.id), win: Number(p.totalWin || 0) });
+    map.set(p.id, { id: p.id, nick: p.nick || '玩家', win: Number(p.giftWealth || 0) });
   });
-  map.set(state.user.id, { id: state.user.id, nick: state.user.nick, win: Number(state.user.totalWin || 0) });
+  map.set(state.user.id, { id: state.user.id, nick: state.user.nick, win: Number(state.user.giftWealth || 0) });
   state.leaderboard = Array.from(map.values()).sort((a, b) => b.win - a.win).slice(0, 10);
 }
 
 function renderProfile() {
+  if (!state.isAuthenticated || !state.user.id) {
+    document.getElementById('user-id-label').textContent = '未登入';
+    document.getElementById('my-nick-display').textContent = '';
+    return;
+  }
   document.getElementById('user-id-label').textContent = 'ID:' + state.user.id;
   document.getElementById('my-nick-display').textContent = state.user.nick;
   document.getElementById('my-diamonds-display').textContent = formatNum(state.user.diamonds);
@@ -1522,7 +1941,7 @@ function openPlayerHomepage(playerId) {
   syncAllPlayerData();
   state.viewingPlayerId = playerId || state.user.id;
   const isSelf = state.viewingPlayerId === state.user.id;
-  const p = state.playerVault[state.viewingPlayerId] || state.playersDirectory[state.viewingPlayerId] || state.playersDirectory[state.user.id];
+  const p = state.playerVault[state.viewingPlayerId] || state.playersDirectory[state.viewingPlayerId] || state.user;
   const wInfo = calcLevelInfo(p.wealthExp);
   const cInfo = calcLevelInfo(p.charmExp);
   const nob = getNobilityObj(p.nobility);
@@ -1552,18 +1971,10 @@ function openPlayerHomepage(playerId) {
         <div class="rel-icon-box">${iconContent}</div>
         <div>
           <div>${rt.label} · ${r.targetNick}</div>
-          <div style="font-size:9px;opacity:0.75;">ID:${r.targetId}</div>
         </div>
       </div>
     `;
   }).join('');
-
-  const wealthRightText = isSelf
-    ? `Lv.${wInfo.level}（已累積 ${formatNum(wInfo.score)} 分）`
-    : `Lv.${wInfo.level}`;
-  const charmRightText = isSelf
-    ? `Lv.${cInfo.level}（已累積 ${formatNum(cInfo.score)} 分）`
-    : `Lv.${cInfo.level}`;
 
   document.getElementById('homepage-card-container').innerHTML = `
     <div class="section-title">
@@ -1578,7 +1989,6 @@ function openPlayerHomepage(playerId) {
       <div class="avatar-wrap" style="width:60px;height:60px;font-size:30px;">${avHtml}</div>
       <div>
         <div style="font-size:16px;font-weight:900;">${p.nick}</div>
-        <div style="font-size:11px;color:var(--text-muted);">ID：${p.id}</div>
         <div style="margin-top:4px;"><span class="mini-chip gold">${titleBadge}</span></div>
       </div>
     </div>
@@ -1592,11 +2002,11 @@ function openPlayerHomepage(playerId) {
     </div>
     <div class="list-item" style="margin-bottom:6px;" onclick="${isSelf ? `openLevelProgressModal('wealth')` : ''}">
       <span>💎 財富等級</span>
-      <b style="color:${getLevelColor(wInfo.level)};">${wealthRightText}</b>
+      <b style="color:${getLevelColor(wInfo.level)};">${isSelf ? `Lv.${wInfo.level}（已累積 ${formatNum(wInfo.score)} 分）` : `Lv.${wInfo.level}`}</b>
     </div>
     <div class="list-item" style="margin-bottom:10px;" onclick="${isSelf ? `openLevelProgressModal('charm')` : ''}">
       <span>🌹 魅力等級</span>
-      <b style="color:${getLevelColor(cInfo.level)};">${charmRightText}</b>
+      <b style="color:${getLevelColor(cInfo.level)};">${isSelf ? `Lv.${cInfo.level}（已累積 ${formatNum(cInfo.score)} 分）` : `Lv.${cInfo.level}`}</b>
     </div>
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">💞 親密關係牆 (${rels.length})</div>
     ${relHtml ? `<div class="rel-grid" style="margin-bottom:10px;">${relHtml}</div>` : `<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">尚未綁定親密關係</div>`}
@@ -1619,19 +2029,28 @@ function handleCoverUpload(e) {
   reader.readAsDataURL(file);
 }
 
+/* #7: 每個麥位只能坐一個人 */
 function syncMyMicsWithProfile() {
+  let foundSelf = false;
   state.mics.forEach(m => {
-    if (m.isSelf || m.id === state.user.id) {
-      m.id = state.user.id;
-      m.nick = state.user.nick;
-      m.avatar = state.user.avatar;
-      m.avatarImg = state.user.avatarImg || '';
-      m.isSelf = true;
-    } else if (m.id && state.playerVault && state.playerVault[m.id]) {
-      const p = state.playerVault[m.id];
-      m.nick = p.nick || m.nick;
-      m.avatar = p.avatar || m.avatar;
-      m.avatarImg = p.avatarImg || '';
+    if (state.user.id && m.id === state.user.id) {
+      if (!foundSelf) {
+        foundSelf = true;
+        m.nick = state.user.nick;
+        m.avatar = state.user.avatar;
+        m.avatarImg = state.user.avatarImg || '';
+        m.isSelf = true;
+      } else {
+        m.id = ''; m.nick = ''; m.avatar = ''; m.avatarImg = ''; m.speaking = false; m.isSelf = false;
+      }
+    } else {
+      m.isSelf = false;
+      if (m.id && state.playerVault && state.playerVault[m.id]) {
+        const p = state.playerVault[m.id];
+        m.nick = p.nick || m.nick;
+        m.avatar = p.avatar || m.avatar;
+        m.avatarImg = p.avatarImg || '';
+      }
     }
   });
 }
@@ -1690,7 +2109,7 @@ function toggleMicSlot(idx) {
     slot.isSelf = true;
     showToast(`已登上 ${idx + 1} 號語音麥位`);
   } else {
-    openPlayerHomepage(slot.id);
+    showToast(`${idx + 1} 號麥位已有玩家 ${slot.nick} 入座，每個麥位僅限一人`);
     return;
   }
   renderMics();
@@ -1707,15 +2126,16 @@ function toggleMicMute() {
   saveState();
 }
 
+/* #6: 任何人進入任何一個語音房間，系統自行在公頻通知歡迎哪位玩家進入房間 */
 function triggerWelcomeBanner() {
-  const nob = getNobilityObj();
-  const titleTag = state.user.customTitle ? `【${state.user.customTitle}】` : (nob ? `【${nob.name}】` : '【貴賓】');
   const banner = document.getElementById('welcome-banner');
-  banner.textContent = `✨ 歡迎 ${titleTag}${state.user.nick} 進入「${state.currentRoom}」！`;
-  banner.classList.remove('show');
-  void banner.offsetWidth;
-  banner.classList.add('show');
-  addChat('進房', state.user.nick, `進入「${state.currentRoom}」✨`);
+  if (banner) {
+    banner.textContent = `✨ 系統歡迎 ${state.user.nick} 進入「${state.currentRoom}」！`;
+    banner.classList.remove('show');
+    void banner.offsetWidth;
+    banner.classList.add('show');
+  }
+  addChat('系統歡迎', '語音系統', `歡迎 ${state.user.nick} 進入「${state.currentRoom}」✨`);
 }
 
 function addChat(tag, nick, text, extra = {}) {
@@ -1731,6 +2151,7 @@ function addChat(tag, nick, text, extra = {}) {
 
 function renderChats() {
   const box = document.getElementById('chat-box');
+  if (!box) return;
   box.innerHTML = state.chats.map(c => {
     const inviteBtn = c.relInvite && !c.relInvite.accepted
       ? `<div><button class="chat-confirm-btn" onclick="acceptRelationshipInvite('${c.id}')">✓ 確認確定關係</button></div>`
@@ -1763,10 +2184,7 @@ function acceptRelationshipInvite(msgId) {
 
   [state.playerVault, state.playersDirectory, state.accounts].forEach(store => {
     if (!store[inv.fromId]) {
-      store[inv.fromId] = {
-        id: inv.fromId, nick: inv.fromNick, avatar: '🐧', avatarImg: '', coverImg: '',
-        customTitle: '', wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [], backpack: []
-      };
+      store[inv.fromId] = createEmptyUserRecord(inv.fromId, inv.fromNick, '');
     }
     if (!Array.isArray(store[inv.fromId].relationships)) store[inv.fromId].relationships = [];
     store[inv.fromId].relationships.push({
@@ -1828,12 +2246,15 @@ function renderLeaderboard() {
   syncUserToLeaderboard();
   const list = document.getElementById('leaderboard-list');
   const medals = ['🥇', '🥈', '🥉'];
+  if (!state.leaderboard.length) {
+    list.innerHTML = `<div style="font-size:11px;color:var(--text-muted);">目前尚無送禮財富榜記錄</div>`;
+    return;
+  }
   list.innerHTML = state.leaderboard.slice(0, 10).map((row, i) => `
     <div class="list-item">
       <div style="cursor:pointer;" onclick="openPlayerHomepage('${row.id}')">
         <span style="font-weight:900;margin-right:6px;">${medals[i] || '#' + (i + 1)}</span>
         <b style="font-size:12px;">${row.nick}</b>
-        <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">ID:${row.id}</span>
       </div>
       <span style="font-size:12px;font-weight:900;color:var(--gold-hi);">💎 ${formatNum(row.win)}</span>
     </div>
@@ -1881,7 +2302,7 @@ function selectChip(val, btn) {
 }
 
 function placeBet(animalId) {
-  if (state.isSpinning) return;
+  if (state.isSpinning || !state.isAuthenticated) return;
   const cost = state.selectedChip;
   if (state.user.diamonds < cost) { showToast('鑽石不足'); return; }
   state.user.diamonds -= cost;
@@ -1892,7 +2313,7 @@ function placeBet(animalId) {
 }
 
 function placeSpecialBet(groupKey) {
-  if (state.isSpinning) return;
+  if (state.isSpinning || !state.isAuthenticated) return;
   const cost = state.selectedChip;
   if (state.user.diamonds < cost) { showToast('鑽石不足'); return; }
   if (!state.specialBets) state.specialBets = { fish: 0, boss: 0 };
@@ -1904,7 +2325,7 @@ function placeSpecialBet(groupKey) {
 }
 
 function repeatLastBet() {
-  if (state.isSpinning) return;
+  if (state.isSpinning || !state.isAuthenticated) return;
   const entries = Object.entries(state.lastBets || {});
   const spEntries = Object.entries(state.lastSpecialBets || {}).filter(([, v]) => v > 0);
   if (!entries.length && !spEntries.length) { showToast('上一輪沒有投注記錄'); return; }
@@ -1937,8 +2358,9 @@ function pickOutcome() {
   return { mode: 'single', ids: [0], animal: ANIMALS[0], mult: ANIMALS[0].mult, label: `${ANIMALS[0].emoji}${ANIMALS[0].mult}x` };
 }
 
+/* #10: 企鵝的麻吉賺到的錢不計入財富榜 */
 function spinNow() {
-  if (state.isSpinning) return;
+  if (state.isSpinning || !state.isAuthenticated) return;
   state.isSpinning = true;
   const outcome = pickOutcome();
   const anchorId = outcome.ids[0];
@@ -1975,9 +2397,7 @@ function spinNow() {
 
       if (prize > 0) {
         state.user.diamonds += prize;
-        state.user.totalWin = (state.user.totalWin || 0) + prize;
-        syncUserToLeaderboard();
-        showToast(`🎉 開出【${summaryName}】！贏得 ${formatNum(prize)} 鑽石`);
+        showToast(`🎉 開出【${summaryName}】！贏得 ${formatNum(prize)} 鑽石（不計入財富榜）`);
         addChat('喜報', state.user.nick, `在《企鵝的麻吉》開出 ${summaryName}，贏得 ${formatNum(prize)} 鑽石！`);
       } else {
         showToast(`本輪開出 ${summaryName}`);
@@ -1999,7 +2419,7 @@ function spinNow() {
 }
 
 setInterval(() => {
-  if (state.isSpinning || !state.majiExpanded || state.majiSubTab !== 'wheel') return;
+  if (!state.isAuthenticated || state.isSpinning || !state.majiExpanded || state.majiSubTab !== 'wheel') return;
   state.countdown -= 1;
   if (state.countdown <= 0) { spinNow(); return; }
   const pill = document.getElementById('game-timer-pill');
@@ -2069,7 +2489,7 @@ function openBlindBox(boxIdx, times) {
   }
 
   if (grandReward) {
-    triggerJackpotMarquee(`🎊 恭喜【${state.user.nick}】(ID:${state.user.id}) 在「${box.name}」抽中盲盒大獎 ${grandReward.icon}${grandReward.name}（價值 💎${formatNum(grandReward.value)}）！`);
+    triggerJackpotMarquee(`🎊 恭喜【${state.user.nick}】在「${box.name}」抽中盲盒大獎 ${grandReward.icon}${grandReward.name}（價值 💎${formatNum(grandReward.value)}）！`);
   }
 
   renderProfile(); saveState();
@@ -2138,11 +2558,10 @@ function openSendRelRingModal(bagIdx) {
   const item = state.backpack[bagIdx];
   if (!item) return;
   const rt = RELATIONSHIP_TYPES.find(x => x.key === item.relType) || RELATIONSHIP_TYPES[0];
-  const friendOpts = state.friends.map(f => `<option value="${f.id}">${f.nick} (ID:${f.id})</option>`).join('');
+  const friendOpts = state.friends.map(f => `<option value="${f.id}">${f.nick}</option>`).join('');
   openModal(`💞 贈送【${rt.label}】戒指`, `
-    <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;">選擇好友並輸入對象 ID（送出後由官方系統聊天室通知對方確認）：</div>
+    <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;">選擇已通過的好友（送出後由系統通知對方確認）：</div>
     <select id="rel-target-sel" class="field-select">${friendOpts}</select>
-    <input id="rel-target-id" class="field-input" maxlength="8" placeholder="或直接輸入對象 ID" />
     <button class="primary-btn" onclick="confirmSendRelRing(${bagIdx})">送出戒指並發送關係通知</button>
   `);
 }
@@ -2151,11 +2570,10 @@ function confirmSendRelRing(bagIdx) {
   const item = state.backpack[bagIdx];
   if (!item) return;
   const rt = RELATIONSHIP_TYPES.find(x => x.key === item.relType) || RELATIONSHIP_TYPES[0];
-  const selId = document.getElementById('rel-target-sel').value;
-  const typedId = document.getElementById('rel-target-id').value.trim();
-  const targetId = typedId || selId;
+  const targetId = document.getElementById('rel-target-sel').value;
+  if (!targetId) { showToast('請先選擇好友'); return; }
   const dirObj = state.playerVault[targetId] || state.playersDirectory[targetId] || state.friends.find(f => f.id === targetId);
-  const targetNick = dirObj ? dirObj.nick : ('玩家_' + targetId);
+  const targetNick = dirObj ? dirObj.nick : '好友';
 
   if (item.count > 1) item.count -= 1;
   else state.backpack.splice(bagIdx, 1);
@@ -2165,7 +2583,7 @@ function confirmSendRelRing(bagIdx) {
   addChat(
     '官方系統',
     '系統通知',
-    `【${state.user.nick}】(ID:${state.user.id}) 向【${targetNick}】(ID:${targetId}) 贈送了 ${item.icon}${item.name}，邀請建立【${rt.label}】關係！請確認是否確定關係。`,
+    `【${state.user.nick}】向【${targetNick}】贈送了 ${item.icon}${item.name}，邀請建立【${rt.label}】關係！請確認是否確定關係。`,
     {
       playerId: state.user.id,
       relInvite: {
@@ -2184,13 +2602,19 @@ function confirmSendRelRing(bagIdx) {
   renderProfile();
   closeModal();
   switchTab('rooms');
-  showToast('已透過官方系統聊天室發送關係確認通知');
+  showToast('已發送關係確認通知');
 }
 
+/* #11: 送禮計入財富榜 */
 function giftFromBackpack(idx) {
   const item = state.backpack[idx];
   if (!item) return;
-  state.user.charmExp += (item.value || 100);
+  const val = Number(item.value || 100);
+  state.user.charmExp += val;
+  addGiftWealth(val);
+  if (val >= 500000) {
+    pushOfficialNotice('豪禮播報', `🎉 恭喜【${state.user.nick}】送出價值 💎${formatNum(val)} 的 ${item.icon}${item.name}！`);
+  }
   checkMax666AndNotify('charm', calcLevelInfo(state.user.charmExp));
   addChat('背包贈禮', state.user.nick, `送出了背包珍藏 ${item.icon}【${item.name}】！`);
   if (item.count > 1) item.count -= 1;
@@ -2236,7 +2660,7 @@ function renderGifts() {
       ? `<img src="${g.img}" class="thumb-img" alt="${g.name}" />`
       : g.icon;
     return `
-      <div class="gift-card" onclick="sendWallGift('${g.id}')">
+      <div class="gift-card" onclick="openSendGiftTargetModal('${g.id}')">
         <div class="gift-icon">${visual}</div>
         <div class="gift-name">${g.name}</div>
         <div class="gift-cost">💎 ${formatNum(g.price)}</div>
@@ -2245,20 +2669,63 @@ function renderGifts() {
   }).join('');
 }
 
-function sendWallGift(giftId) {
+/* #11 & #12: 選擇送禮對象（含自己）→ 計入財富榜，收到 50 萬以上禮物於官方通知聊天室通知全平台 */
+function openSendGiftTargetModal(giftId) {
+  const g = state.gifts.find(x => x.id === giftId);
+  if (!g) return;
+  const opts = [
+    `<option value="${state.user.id}">${state.user.nick}（自己）</option>`,
+    ...state.friends.map(f => `<option value="${f.id}">${f.nick}</option>`)
+  ].join('');
+  openModal(`🎁 送出【${g.name}】(💎${formatNum(g.price)})`, `
+    <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;">選擇接收禮物的對象（送禮計入財富榜）：</div>
+    <select id="gift-target-sel" class="field-select">${opts}</select>
+    <button class="primary-btn" onclick="confirmSendWallGift('${g.id}')">確認送出禮物</button>
+  `);
+}
+
+function confirmSendWallGift(giftId) {
   const g = state.gifts.find(x => x.id === giftId);
   if (!g) return;
   if (state.user.diamonds < g.price) { showToast('鑽石不足'); return; }
+  const targetId = document.getElementById('gift-target-sel').value || state.user.id;
+  const isSelf = targetId === state.user.id;
+  const receiverObj = isSelf
+    ? state.user
+    : (state.playerVault[targetId] || state.friends.find(f => f.id === targetId) || { id: targetId, nick: '好友' });
+
   state.user.diamonds -= g.price;
   state.user.wealthExp += g.price;
-  state.user.charmExp += g.price;
-  if (!Array.isArray(state.user.litGifts)) state.user.litGifts = [];
-  if (!state.user.litGifts.includes(g.id)) state.user.litGifts.push(g.id);
+  addGiftWealth(g.price);
+
+  if (isSelf) {
+    state.user.charmExp += g.price;
+    if (!Array.isArray(state.user.litGifts)) state.user.litGifts = [];
+    if (!state.user.litGifts.includes(g.id)) state.user.litGifts.push(g.id);
+    checkMax666AndNotify('charm', calcLevelInfo(state.user.charmExp));
+  } else {
+    if (state.playerVault[targetId]) {
+      state.playerVault[targetId].charmExp = Number(state.playerVault[targetId].charmExp || 0) + g.price;
+      if (!Array.isArray(state.playerVault[targetId].litGifts)) state.playerVault[targetId].litGifts = [];
+      if (!state.playerVault[targetId].litGifts.includes(g.id)) state.playerVault[targetId].litGifts.push(g.id);
+      state.playerVault[targetId].updatedAt = Date.now();
+    }
+  }
+
+  if (Number(g.price) >= 500000) {
+    pushOfficialNotice(
+      '50萬豪禮通知',
+      `🎁 全平台通知：【${receiverObj.nick}】收到了【${state.user.nick}】贈送的「${g.name}」（價值 💎${formatNum(g.price)}）！`
+    );
+  }
+
   checkMax666AndNotify('wealth', calcLevelInfo(state.user.wealthExp));
-  checkMax666AndNotify('charm', calcLevelInfo(state.user.charmExp));
-  renderProfile(); saveState();
-  addChat('豪禮', state.user.nick, `送出【${g.name}】(💎${formatNum(g.price)})！`);
-  showToast(`已送出 ${g.name} 並點亮主頁圖標！`);
+  closeModal();
+  renderProfile();
+  renderLeaderboard();
+  saveState();
+  addChat('豪禮', state.user.nick, `送給【${receiverObj.nick}】【${g.name}】(💎${formatNum(g.price)})！`);
+  showToast(`已送出 ${g.name} 並計入財富榜！`);
 }
 
 function renderShieldSvg(tier) {
@@ -2308,8 +2775,25 @@ function buyNobility(id) {
   state.user.nobility = id;
   checkMax666AndNotify('wealth', calcLevelInfo(state.user.wealthExp));
   renderProfile(); renderNobility(); saveState();
-  triggerWelcomeBanner();
   showToast(`👑 恭喜晉升【${tier.name}】！`);
+}
+
+/* #8: 語音大廳預設收合，點開進入房間才顯示房間畫面 */
+function enterDefaultVoiceLobby() {
+  const firstIdx = state.rooms.findIndex(r => r.id === 'r_official');
+  tryEnterRoom(firstIdx >= 0 ? firstIdx : 0);
+}
+
+function leaveCurrentRoomToLobby() {
+  state.roomEntered = false;
+  renderRooms();
+  saveState(false);
+}
+
+function toggleRoomListExpanded() {
+  state.roomListExpanded = !state.roomListExpanded;
+  renderRooms();
+  saveState(false);
 }
 
 function toggleFavoriteRoom(roomId) {
@@ -2328,11 +2812,22 @@ function toggleFavoriteRoom(roomId) {
 
 function renderRooms() {
   ensureSelfVoiceRoom();
+  document.getElementById('voice-lobby-launcher-card').style.display = state.roomEntered ? 'none' : 'block';
+  document.getElementById('active-room-card').style.display = state.roomEntered ? 'block' : 'none';
   document.getElementById('current-room-title').textContent = state.currentRoom;
-  renderMics();
+  if (state.roomEntered) {
+    renderMics();
+    renderChats();
+  }
+
+  const list = document.getElementById('room-list');
+  const btn = document.getElementById('toggle-room-list-btn');
+  if (btn) btn.textContent = state.roomListExpanded ? '收合房間' : '展開房間';
+  list.style.display = state.roomListExpanded ? 'flex' : 'none';
+  if (!state.roomListExpanded) return;
+
   const favSet = new Set(state.favoriteRoomIds || []);
   const favRooms = state.rooms.filter(r => favSet.has(r.id));
-  const list = document.getElementById('room-list');
 
   if (!favRooms.length) {
     list.innerHTML = `
@@ -2437,9 +2932,10 @@ function verifyRoomPassword(idx) {
 function enterRoomObj(r) {
   state.currentRoom = r.name;
   state.currentRoomOwnerId = r.ownerId || 'official';
+  state.roomEntered = true;
   document.getElementById('current-room-title').textContent = r.name;
-  renderMics();
   switchTab('rooms');
+  renderRooms();
   triggerWelcomeBanner();
   saveState();
 }
@@ -2463,27 +2959,87 @@ function confirmCreateRoom() {
   state.rooms.unshift(roomObj);
   if (!Array.isArray(state.favoriteRoomIds)) state.favoriteRoomIds = [];
   if (!state.favoriteRoomIds.includes(roomObj.id)) state.favoriteRoomIds.unshift(roomObj.id);
-  renderRooms(); closeModal(); enterRoomObj(roomObj);
+  closeModal();
+  enterRoomObj(roomObj);
 }
 
+/* #2, #3, #4, #12, #13: 好友確認、不顯示ID、官方通知置頂、免打擾 */
 function renderFriends() {
+  const latestOff = state.officialNotices[state.officialNotices.length - 1];
+  const previewEl = document.getElementById('official-latest-preview');
+  if (previewEl) {
+    previewEl.textContent = latestOff
+      ? `[${formatDateTimeFull(latestOff.ts)}] ${latestOff.text}`
+      : '尚無官方通知';
+  }
+
+  const dndOffBtn = document.getElementById('dnd-official-btn');
+  if (dndOffBtn) {
+    dndOffBtn.textContent = state.user.dndOfficial ? '🔕 免打擾：開' : '🔔 免打擾：關';
+    dndOffBtn.classList.toggle('muted-on', Boolean(state.user.dndOfficial));
+  }
+  const dndFrBtn = document.getElementById('dnd-friends-btn');
+  if (dndFrBtn) {
+    dndFrBtn.textContent = state.user.dndFriends ? '🔕 聊天免打擾：開' : '🔔 聊天免打擾：關';
+    dndFrBtn.classList.toggle('muted-on', Boolean(state.user.dndFriends));
+  }
+
+  const pendingReqs = (state.friendRequests || []).filter(rq => rq.status === 'pending');
+  const reqCountEl = document.getElementById('friend-req-count');
+  if (reqCountEl) reqCountEl.textContent = String(pendingReqs.length);
+
+  const reqBox = document.getElementById('friend-requests-list');
+  if (reqBox) {
+    if (!pendingReqs.length) {
+      reqBox.innerHTML = `<div style="font-size:11px;color:var(--text-muted);">目前沒有待確認的好友申請</div>`;
+    } else {
+      reqBox.innerHTML = pendingReqs.map(rq => {
+        const peer = state.playerVault[rq.fromId] || {};
+        const avHtml = renderAvatarSmallHtml(peer, rq.fromAvatar || '🐧');
+        return `
+          <div class="list-item">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="pm-av">${avHtml}</div>
+              <div>
+                <div style="font-size:12px;font-weight:800;">${peer.nick || rq.fromNick || '玩家'}</div>
+                <div style="font-size:10px;color:var(--text-muted);">申請成為好友</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:5px;">
+              <button class="mini-chip gold" onclick="respondFriendRequest('${rq.fromId}', true)">通過</button>
+              <button class="mini-chip" onclick="respondFriendRequest('${rq.fromId}', false)">拒絕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
   const list = document.getElementById('friend-list');
   if (!state.friends.length) {
-    list.innerHTML = `<div style="font-size:11px;color:var(--text-muted);padding:8px 2px;">尚無好友，點選右上角「＋ 搜尋ID加好友」新增。</div>`;
+    list.innerHTML = `<div style="font-size:11px;color:var(--text-muted);padding:8px 2px;">尚無好友，點選右上角「＋ 加好友」輸入好友 ID 送出申請。</div>`;
     return;
   }
-  list.innerHTML = state.friends.map((f, idx) => `
-    <div class="list-item">
-      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="openPlayerHomepage('${f.id}')">
-        <span style="font-size:24px;">${f.avatar}</span>
-        <div>
-          <div style="font-size:13px;font-weight:800;">${f.nick} <span style="font-size:10px;color:#34d399;">● 在線</span></div>
-          <div style="font-size:10px;color:var(--text-muted);">ID:${f.id}</div>
+
+  list.innerHTML = state.friends.map((f, idx) => {
+    const peer = state.playerVault[f.id] || state.playersDirectory[f.id] || f;
+    const displayNick = peer.nick || f.nick || '好友';
+    const avHtml = renderAvatarSmallHtml(peer, f.avatar || '🐧');
+    const lastMsg = (f.messages && f.messages.length) ? f.messages[f.messages.length - 1] : null;
+    const subText = lastMsg ? `${lastMsg.sender}：${lastMsg.text}` : '已成為好友，開始聊天吧';
+    return `
+      <div class="list-item">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer;" onclick="openPlayerHomepage('${f.id}')">
+          <div class="pm-av">${avHtml}</div>
+          <div style="min-width:0;">
+            <div style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayNick}</div>
+            <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${subText}</div>
+          </div>
         </div>
+        <button class="mini-chip gold" onclick="openFullscreenPm(${idx})">💬 聊天</button>
       </div>
-      <button class="mini-chip" onclick="openFullscreenPm(${idx})">💬 私人聊天室</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderAvatarSmallHtml(playerObj, fallbackEmoji) {
@@ -2493,15 +3049,106 @@ function renderAvatarSmallHtml(playerObj, fallbackEmoji) {
   return (playerObj && playerObj.avatar) || fallbackEmoji || '🐧';
 }
 
+function addDemoFriend() {
+  openModal('➕ 輸入好友 ID 申請加好友', `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">輸入要加入的好友 ID，對方通過後即可開始聊天：</div>
+    <input id="add-fid-id" class="field-input" maxlength="8" placeholder="輸入對方 ID" />
+    <button class="primary-btn" onclick="confirmAddFriend()">送出好友申請</button>
+  `);
+}
+
+function confirmAddFriend() {
+  const targetId = document.getElementById('add-fid-id').value.trim();
+  if (!targetId) { showToast('請輸入好友 ID'); return; }
+  if (targetId === state.user.id) { showToast('不能加自己為好友'); return; }
+  if (state.friends.some(f => f.id === targetId)) { showToast('你們已經是好友了'); return; }
+
+  const targetRec = state.playerVault[targetId] || state.accounts[targetId] || state.playersDirectory[targetId];
+  const targetNick = (targetRec && targetRec.nick) || '玩家';
+
+  const reqObj = {
+    fromId: state.user.id,
+    fromNick: state.user.nick,
+    fromAvatar: state.user.avatar || '🐧',
+    toId: targetId,
+    toNick: targetNick,
+    status: 'pending',
+    ts: Date.now()
+  };
+
+  if (targetRec) {
+    if (!Array.isArray(targetRec.friendRequests)) targetRec.friendRequests = [];
+    if (!targetRec.friendRequests.some(r => r.fromId === state.user.id && r.status === 'pending')) {
+      targetRec.friendRequests.push(cloneSnapshot(reqObj));
+      targetRec.updatedAt = Date.now();
+    }
+    state.playerVault[targetId] = cloneSnapshot(targetRec);
+    state.accounts[targetId] = cloneSnapshot(targetRec);
+    state.playersDirectory[targetId] = cloneSnapshot(targetRec);
+  }
+
+  /* 同時支援同裝置切號測試時讓對方收到待確認申請 */
+  if (!state.friendRequests.some(r => r.fromId === state.user.id && r.toId === targetId && r.status === 'pending')) {
+    state.friendRequests.push(cloneSnapshot(reqObj));
+  }
+
+  renderFriends();
+  saveState();
+  closeModal();
+  showToast('已送出好友申請，需對方通過才能開始聊天');
+}
+
+function respondFriendRequest(fromId, accept) {
+  const reqIdx = state.friendRequests.findIndex(r => r.fromId === fromId && r.status === 'pending');
+  if (reqIdx < 0) return;
+  const rq = state.friendRequests[reqIdx];
+  state.friendRequests.splice(reqIdx, 1);
+
+  if (accept) {
+    const peer = state.playerVault[fromId] || state.playersDirectory[fromId] || { id: fromId, nick: rq.fromNick || '好友', avatar: '🐧' };
+    if (!state.friends.some(f => f.id === fromId)) {
+      state.friends.push({
+        id: fromId,
+        nick: peer.nick || rq.fromNick || '好友',
+        avatar: peer.avatar || '🐧',
+        online: true,
+        messages: [{ id: 'sys_' + Date.now(), senderId: 'system', sender: '系統', text: '你們已成為好友，可以開始聊天了！', ts: Date.now() }]
+      });
+    }
+    if (state.playerVault[fromId]) {
+      if (!Array.isArray(state.playerVault[fromId].friends)) state.playerVault[fromId].friends = [];
+      if (!state.playerVault[fromId].friends.some(x => x.id === state.user.id)) {
+        state.playerVault[fromId].friends.push({
+          id: state.user.id,
+          nick: state.user.nick,
+          avatar: state.user.avatar || '🐧',
+          online: true,
+          messages: [{ id: 'sys_' + Date.now(), senderId: 'system', sender: '系統', text: '你們已成為好友，可以開始聊天了！', ts: Date.now() }]
+        });
+        state.playerVault[fromId].updatedAt = Date.now();
+      }
+    }
+    showToast(`已通過 ${peer.nick || rq.fromNick} 的好友申請`);
+  } else {
+    showToast('已拒絕好友申請');
+  }
+
+  renderFriends();
+  saveState();
+}
+
 function openFullscreenPm(idx) {
   syncAllPlayerData();
   const f = state.friends[idx];
   if (!f) return;
   state.activePmFriendIdx = idx;
+  state.user.unreadFriendsCount = 0;
+  renderUnreadBadges();
   const peer = state.playerVault[f.id] || state.playersDirectory[f.id] || f;
-  document.getElementById('full-pm-title').textContent = `💬 ${peer.nick || f.nick} (ID:${f.id})`;
+  document.getElementById('full-pm-title').textContent = `💬 ${peer.nick || f.nick}`;
   renderFullscreenPmBody(f);
   document.getElementById('fullscreen-pm-overlay').classList.add('show');
+  saveState(false);
 }
 
 function renderFullscreenPmBody(f) {
@@ -2536,8 +3183,10 @@ function renderFullscreenPmBody(f) {
 function closeFullscreenPm() {
   state.activePmFriendIdx = null;
   document.getElementById('fullscreen-pm-overlay').classList.remove('show');
+  renderFriends();
 }
 
+/* #1: 私人聊天室訊息即時同步，雙方發訊息都可以看見彼此對話，且平台內會跳出通知 */
 function sendFullscreenPm() {
   const idx = state.activePmFriendIdx;
   if (idx === null || idx === undefined) return;
@@ -2545,90 +3194,41 @@ function sendFullscreenPm() {
   const inp = document.getElementById('full-pm-inp');
   const txt = inp.value.trim();
   if (!f || !txt) return;
-  if (!Array.isArray(f.messages)) f.messages = [];
-  f.messages.push({
+  const nowTs = Date.now();
+  const msgObj = {
+    id: 'pm_' + nowTs + '_' + Math.random().toString(36).slice(2, 6),
     senderId: state.user.id,
     sender: state.user.nick,
     text: txt,
-    ts: Date.now()
-  });
+    ts: nowTs
+  };
+  if (!Array.isArray(f.messages)) f.messages = [];
+  f.messages.push(cloneSnapshot(msgObj));
+
+  if (state.playerVault[f.id]) {
+    if (!Array.isArray(state.playerVault[f.id].friends)) state.playerVault[f.id].friends = [];
+    let reverseF = state.playerVault[f.id].friends.find(x => x.id === state.user.id);
+    if (!reverseF) {
+      reverseF = { id: state.user.id, nick: state.user.nick, avatar: state.user.avatar || '🐧', online: true, messages: [] };
+      state.playerVault[f.id].friends.push(reverseF);
+    }
+    if (!Array.isArray(reverseF.messages)) reverseF.messages = [];
+    reverseF.messages.push(cloneSnapshot(msgObj));
+    state.playerVault[f.id].unreadFriendsCount = Number(state.playerVault[f.id].unreadFriendsCount || 0) + 1;
+    state.playerVault[f.id].updatedAt = nowTs;
+  }
+
   inp.value = '';
-  saveState();
+  saveState(true);
   renderFullscreenPmBody(f);
-}
-
-function addDemoFriend() {
-  openModal('➕ 搜尋 ID 新增好友', `
-    <input id="add-fid-id" class="field-input" maxlength="8" placeholder="輸入對方 ID（最多 8 碼）" />
-    <input id="add-fid-nick" class="field-input" placeholder="輸入對方暱稱" />
-    <button class="primary-btn" onclick="confirmAddFriend()">加入好友</button>
-  `);
-}
-
-function confirmAddFriend() {
-  const id = (document.getElementById('add-fid-id').value.trim() || String(Math.floor(100000 + Math.random() * 899999))).slice(0, 8);
-  const nick = document.getElementById('add-fid-nick').value.trim() || ('玩家' + id);
-  if (!state.playerVault[id]) {
-    const rec = { id, password: '', nick, avatar: '🐧', avatarImg: '', coverImg: '', customTitle: '', diamonds: 100000, wealthExp: 0, charmExp: 0, totalWin: 0, nobility: '', litGifts: [], relationships: [], backpack: [], lastSeen: Date.now(), updatedAt: Date.now() };
-    state.playerVault[id] = cloneSnapshot(rec);
-    state.playersDirectory[id] = cloneSnapshot(rec);
-    state.accounts[id] = cloneSnapshot(rec);
-  }
-  state.friends.push({
-    id, nick, avatar: '🐧', online: true,
-    messages: [{ senderId: id, sender: nick, text: '嗨！我們已經成為好友了～', ts: Date.now() }]
-  });
-  syncUserToLeaderboard();
-  renderFriends(); renderLeaderboard(); saveState(); closeModal();
-  showToast(`已新增好友 ${nick} (ID:${id})`);
-}
-
-function applyAccountSnapshot(id, pwd, isNew) {
-  const base = createDefaultState().user;
-  if (!isNew) {
-    const saved = state.playerVault[id] || state.accounts[id] || {};
-    state.user = Object.assign(cloneSnapshot(base), cloneSnapshot(saved), {
-      id,
-      password: pwd !== undefined ? pwd : (saved.password || ''),
-      lastSeen: Date.now()
-    });
-    state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
-    state.currentBets = cloneSnapshot(state.user.currentBets || {});
-    state.lastBets = cloneSnapshot(state.user.lastBets || {});
-    state.specialBets = cloneSnapshot(state.user.specialBets || { fish: 0, boss: 0 });
-    state.lastSpecialBets = cloneSnapshot(state.user.lastSpecialBets || { fish: 0, boss: 0 });
-  } else {
-    const fresh = cloneSnapshot(base);
-    fresh.id = id;
-    fresh.password = pwd || '';
-    fresh.nick = '企鵝旅人_' + id;
-    fresh.wealthExp = 0;
-    fresh.charmExp = 0;
-    fresh.litGifts = [];
-    fresh.relationships = [];
-    fresh.backpack = [];
-    fresh.currentBets = {};
-    fresh.lastBets = {};
-    fresh.specialBets = { fish: 0, boss: 0 };
-    fresh.lastSpecialBets = { fish: 0, boss: 0 };
-    fresh.lastSeen = Date.now();
-    state.user = fresh;
-    state.backpack = [];
-    state.currentBets = {};
-    state.lastBets = {};
-    state.specialBets = { fish: 0, boss: 0 };
-    state.lastSpecialBets = { fish: 0, boss: 0 };
-  }
-  if (state.user.id !== ADMIN_ONLY_ID) {
-    state.isAdmin = false;
-  }
+  showToast(`💬 ${state.user.nick} 發了一則訊息：${txt}`);
 }
 
 function openSwitchAccountModal() {
   syncAllPlayerData();
-  const idsToShow = Array.from(new Set(state.loggedInIds || [state.user.id]));
+  const idsToShow = Array.from(new Set(state.loggedInIds || []));
   const savedList = idsToShow.map(id => {
-    const acc = state.playerVault[id] || state.accounts[id] || { id, nick: '玩家_' + id, diamonds: 0, backpack: [] };
+    const acc = state.playerVault[id] || state.accounts[id] || { id, nick: '玩家', diamonds: 0, backpack: [] };
     return `
       <div class="list-item" style="margin-bottom:6px;">
         <div>
@@ -2640,14 +3240,14 @@ function openSwitchAccountModal() {
     `;
   }).join('');
 
-  openModal('🔄 切換帳號（僅保留登入過的 ID）', `
+  openModal('🔄 切換帳號', `
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">帳號 ID（最多 8 碼）</div>
-    <input id="switch-acc-id" class="field-input" maxlength="8" value="${state.user.id}" placeholder="輸入 1～8 碼 ID" />
+    <input id="switch-acc-id" class="field-input" maxlength="8" value="${state.user.id || ''}" placeholder="輸入 1～8 碼 ID" />
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">設定 / 驗證密碼</div>
     <input id="switch-acc-pwd" type="password" class="field-input" placeholder="設定或輸入帳號密碼" />
     <button class="primary-btn" style="margin-bottom:10px;" onclick="confirmSwitchAccount()">儲存目前資料並登入／切換</button>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">已登入過的帳號 ID</div>
-    ${savedList || '<div style="font-size:11px;color:var(--text-muted);">尚無其他登入記錄</div>'}
+    ${savedList || '<div style="font-size:11px;color:var(--text-muted);">尚無登入記錄</div>'}
   `);
 }
 
@@ -2671,11 +3271,27 @@ function confirmSwitchAccount() {
       showToast('該帳號密碼錯誤');
       return;
     }
-    applyAccountSnapshot(id, pwd, false);
+    state.user = Object.assign(createEmptyUserRecord(id, existing.nick, pwd), cloneSnapshot(existing), { id, password: pwd, lastSeen: Date.now() });
+    state.backpack = Array.isArray(state.user.backpack) ? cloneSnapshot(state.user.backpack) : [];
+    state.friends = Array.isArray(state.user.friends) ? cloneSnapshot(state.user.friends) : [];
+    state.friendRequests = Array.isArray(state.user.friendRequests) ? cloneSnapshot(state.user.friendRequests) : [];
+    state.currentBets = cloneSnapshot(state.user.currentBets || {});
+    state.lastBets = cloneSnapshot(state.user.lastBets || {});
+    state.specialBets = cloneSnapshot(state.user.specialBets || { fish: 0, boss: 0 });
+    state.lastSpecialBets = cloneSnapshot(state.user.lastSpecialBets || { fish: 0, boss: 0 });
   } else {
-    applyAccountSnapshot(id, pwd, true);
+    state.user = createEmptyUserRecord(id, '企鵝旅人_' + id, pwd);
+    state.backpack = [];
+    state.friends = [];
+    state.friendRequests = [];
+    state.currentBets = {};
+    state.lastBets = {};
+    state.specialBets = { fish: 0, boss: 0 };
+    state.lastSpecialBets = { fish: 0, boss: 0 };
   }
 
+  state.isAuthenticated = true;
+  if (state.user.id !== ADMIN_ONLY_ID) state.isAdmin = false;
   if (!Array.isArray(state.loggedInIds)) state.loggedInIds = [];
   if (!state.loggedInIds.includes(id)) state.loggedInIds.push(id);
 
@@ -2694,7 +3310,7 @@ function openProfileModal() {
     <div id="edit-id-msg" style="font-size:11px;color:#fda4af;margin-bottom:6px;min-height:14px;"></div>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">我的暱稱</div>
     <input id="edit-nick-inp" class="field-input" value="${state.user.nick}" />
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">上傳自訂頭像（立刻存檔並同步至麥位與主頁）</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">上傳自訂頭像（立刻存檔並同步至麥位、好友與主頁）</div>
     <input type="file" accept="image/*" class="field-input" onchange="handleAvatarUpload(event)" />
     <button class="primary-btn" onclick="saveProfileEdit()">儲存帳號設定</button>
   `);
@@ -2707,8 +3323,8 @@ function handleAvatarUpload(e) {
   reader.onload = () => {
     state.user.avatarImg = reader.result;
     syncMyMicsWithProfile();
-    renderProfile(); renderMics(); saveState();
-    showToast('頭像已立刻保存並同步至麥位與主頁');
+    renderProfile(); renderMics(); renderFriends(); saveState();
+    showToast('頭像已立刻保存並同步至麥位、好友與主頁');
   };
   reader.readAsDataURL(file);
 }
@@ -2823,7 +3439,7 @@ function openAdminPanel() {
       <div class="list-item" style="margin-bottom:5px;font-size:11px;">
         <div>
           <b>${p.nick}</b> <span style="color:var(--text-muted);">ID:${p.id}</span>
-          <div style="font-size:10px;color:var(--gold-hi);">💎${formatNum(p.diamonds)} · 財富Lv.${wLv} · 🌹Lv.${cLv} · 背包${bagCnt}</div>
+          <div style="font-size:10px;color:var(--gold-hi);">💎${formatNum(p.diamonds)} · 送禮財富💎${formatNum(p.giftWealth || 0)} · 財富Lv.${wLv} · 🌹Lv.${cLv} · 背包${bagCnt}</div>
         </div>
         <button class="mini-chip" onclick="openPlayerHomepage('${p.id}');closeModal()">主頁</button>
       </div>
@@ -2852,7 +3468,7 @@ function openAdminPanel() {
     <input id="adm-diamond-amt" type="number" class="field-input" placeholder="輸入要發放的鑽石數量" />
     <button class="primary-btn" style="margin-bottom:10px;" onclick="adminSendDiamondsToId()">確認發放鑽石</button>
 
-    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">2. 商城上架（自訂名稱、價格、圖示或圖片）</div>
+    <div style="font-size:12px;font-weight:800;margin-bottom:4px;">2. 商城上架（上架即推官方通知全體玩家）</div>
     <input id="adm-shop-name" class="field-input" placeholder="商品／禮物名稱" />
     <input id="adm-shop-price" type="number" class="field-input" placeholder="價格（鑽石）" />
     <input id="adm-shop-icon" class="field-input" placeholder="圖示 Emoji（例如 🎀 或 💎）" value="🎀" />
@@ -2866,7 +3482,7 @@ function openAdminPanel() {
     </select>
     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">可選填：從相簿上傳商品圖片（上傳即存）</div>
     <input type="file" accept="image/*" class="field-input" onchange="adminStageShopImg(event)" />
-    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminAddShopItem()">＋ 上架至商城</button>
+    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminAddShopItem()">＋ 上架至商城並通知玩家</button>
 
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">3. 更改親密關係圖示（上傳即存）</div>
     <select id="adm-rel-sel" class="field-select">${relOpts}</select>
@@ -2877,7 +3493,7 @@ function openAdminPanel() {
     <input type="file" accept="image/*" class="field-input" onchange="adminUploadGiftImg(event)" />
     <input id="adm-new-gift-name" class="field-input" placeholder="新禮物名稱" />
     <input id="adm-new-gift-price" type="number" class="field-input" placeholder="禮物鑽石價格" />
-    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminAddGiftSlot()">＋ 新增禮物欄位</button>
+    <button class="primary-btn" style="margin-bottom:10px;" onclick="adminAddGiftSlot()">＋ 新增禮物欄位並通知玩家</button>
 
     <div style="font-size:12px;font-weight:800;margin-bottom:4px;">5. 新增盲盒 & 自訂盲盒抽獎機率</div>
     <input id="adm-new-box-name" class="field-input" placeholder="新盲盒名稱" />
@@ -2926,6 +3542,7 @@ function adminStageShopImg(e) {
   reader.readAsDataURL(file);
 }
 
+/* #14 & #15: 管理員上架任一商品，官方系統都會通知玩家有新禮物上架，並即時同步 */
 function adminAddShopItem() {
   const name = document.getElementById('adm-shop-name').value.trim();
   const price = Math.max(1, Number(document.getElementById('adm-shop-price').value || 100));
@@ -2937,8 +3554,9 @@ function adminAddShopItem() {
   });
   _stagedShopImg = '';
   recordAdminLog(`上架商城商品【${name}】(💎${formatNum(price)})`);
-  renderShop(); saveState(); openAdminPanel();
-  showToast(`已上架商城商品【${name}】`);
+  pushOfficialNotice('新禮物上架', `🛍️ 官方系統通知：有新禮物／商品【${name}】（💎${formatNum(price)}）上架囉！`);
+  renderShop(); saveState(true); openAdminPanel();
+  showToast(`已上架【${name}】並通知全體玩家`);
 }
 
 function adminUploadRelImg(e) {
@@ -2950,8 +3568,8 @@ function adminUploadRelImg(e) {
     if (!state.relIcons) state.relIcons = {};
     state.relIcons[key] = reader.result;
     recordAdminLog(`更新親密關係圖示 (${key})`);
-    saveState();
-    showToast('已立刻保存親密關係圖示');
+    saveState(true);
+    showToast('已立刻保存親密關係圖示並同步');
   };
   reader.readAsDataURL(file);
 }
@@ -2978,8 +3596,8 @@ function adminSaveBoxProbs() {
     if (inp) r.prob = Math.max(0, Number(inp.value || 0));
   });
   recordAdminLog(`更新盲盒【${box.name}】抽獎機率`);
-  saveState();
-  showToast(`已更新【${box.name}】抽獎機率`);
+  saveState(true);
+  showToast(`已更新【${box.name}】抽獎機率並同步`);
 }
 
 function adminSendDiamondsToId() {
@@ -2998,7 +3616,7 @@ function adminSendDiamondsToId() {
     });
   }
   recordAdminLog(`發放 ${formatNum(amt)} 鑽石給 ID:${targetId}`);
-  saveState();
+  saveState(true);
   openAdminPanel();
   showToast(`已向 ID:${targetId} 發放 ${formatNum(amt)} 鑽石！`);
 }
@@ -3011,8 +3629,8 @@ function adminUploadGiftImg(e) {
   reader.onload = () => {
     state.gifts[idx].img = reader.result;
     recordAdminLog(`更新禮物【${state.gifts[idx].name}】圖片`);
-    renderGifts(); saveState();
-    showToast(`已立刻保存【${state.gifts[idx].name}】圖片`);
+    renderGifts(); saveState(true);
+    showToast(`已立刻保存【${state.gifts[idx].name}】圖片並同步`);
   };
   reader.readAsDataURL(file);
 }
@@ -3023,8 +3641,9 @@ function adminAddGiftSlot() {
   if (!name) { showToast('請輸入禮物名稱'); return; }
   state.gifts.push({ id: 'g_' + Date.now(), name, icon: '🎀', img: '', price });
   recordAdminLog(`新增禮物【${name}】(💎${formatNum(price)})`);
-  renderGifts(); saveState(); openAdminPanel();
-  showToast(`已新增禮物【${name}】`);
+  pushOfficialNotice('新禮物上架', `🎁 官方系統通知：有新禮物【${name}】（💎${formatNum(price)}）上架囉！`);
+  renderGifts(); saveState(true); openAdminPanel();
+  showToast(`已新增禮物【${name}】並通知全體玩家`);
 }
 
 function adminAddBlindBox() {
@@ -3040,8 +3659,8 @@ function adminAddBlindBox() {
     ]
   });
   recordAdminLog(`新增盲盒【${name}】(💎${formatNum(price)})`);
-  renderBlindBoxes(); saveState(); openAdminPanel();
-  showToast(`已新增盲盒【${name}】`);
+  renderBlindBoxes(); saveState(true); openAdminPanel();
+  showToast(`已新增盲盒【${name}】並同步`);
 }
 
 function adminUploadNobImg(e) {
@@ -3052,8 +3671,8 @@ function adminUploadNobImg(e) {
   reader.onload = () => {
     state.nobilityTiers[idx].img = reader.result;
     recordAdminLog(`更新爵位【${state.nobilityTiers[idx].name}】圖標`);
-    renderNobility(); saveState();
-    showToast(`已立刻保存【${state.nobilityTiers[idx].name}】圖標`);
+    renderNobility(); saveState(true);
+    showToast(`已立刻保存【${state.nobilityTiers[idx].name}】圖標並同步`);
   };
   reader.readAsDataURL(file);
 }
@@ -3064,8 +3683,8 @@ function adminSaveNobPerk() {
   if (!state.nobilityTiers[idx]) return;
   if (perk) state.nobilityTiers[idx].perk = perk;
   recordAdminLog(`更新爵位【${state.nobilityTiers[idx].name}】特權`);
-  renderNobility(); saveState();
-  showToast(`已更新【${state.nobilityTiers[idx].name}】特權`);
+  renderNobility(); saveState(true);
+  showToast(`已更新【${state.nobilityTiers[idx].name}】特權並同步`);
 }
 
 function adminSaveAnimalWeights() {
@@ -3077,8 +3696,8 @@ function adminSaveAnimalWeights() {
     if (inp) a.weight = Math.max(0.1, Number(inp.value || a.weight));
   });
   recordAdminLog(`更新麻吉概率：魚群 ${fishP}%、霸主 ${bossP}% 與 8 格權重`);
-  saveState();
-  showToast('已更新魚群／霸主概率與 8 格機率');
+  saveState(true);
+  showToast('已更新魚群／霸主概率與 8 格機率並同步');
 }
 
 function adminSaveCloud() {
@@ -3107,6 +3726,7 @@ function renderAll() {
   applyTheme();
   renderJackpotMarquee();
   renderProfile();
+  renderUnreadBadges();
   renderMics();
   renderChats();
   document.getElementById('box-launcher-card').style.display = state.boxMenuOpen ? 'none' : 'block';
@@ -3122,10 +3742,17 @@ function renderAll() {
   renderFriends();
 }
 
-document.getElementById('splash-screen').classList.remove('hide');
-renderAll();
-if (getFirebaseRootUrl()) {
-  pullCloudOnce();
+if (!state.isAuthenticated || !state.user.id) {
+  document.getElementById('auth-gate-screen').classList.remove('logged-in');
+  document.getElementById('splash-screen').classList.remove('show');
+  updateSyncStatusBadge();
+  applyTheme();
+  if (getFirebaseRootUrl()) pullCloudOnce();
+} else {
+  document.getElementById('auth-gate-screen').classList.add('logged-in');
+  document.getElementById('splash-screen').classList.add('show');
+  renderAll();
+  if (getFirebaseRootUrl()) pullCloudOnce();
 }
 </script>
 </body>
